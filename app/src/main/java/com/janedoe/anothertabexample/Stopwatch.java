@@ -3,6 +3,7 @@ package com.janedoe.anothertabexample;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -37,6 +38,7 @@ public class Stopwatch {
         if (!recording && !paused) {
             startTime = SystemClock.uptimeMillis();
             record();
+            Log.d("formatted time test: ", formattedTime(100000000));
         } else if (!recording && paused) {
             totalTimePaused += SystemClock.uptimeMillis() - lastPausedAt;
             record();
@@ -83,10 +85,10 @@ public class Stopwatch {
         return elapsedTime;
     }
 
-    private String formattedTime() {
-        hr = TimeUnit.MILLISECONDS.toHours(elapsedTime);
-        min = TimeUnit.MILLISECONDS.toMinutes(elapsedTime);
-        sec = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
+    private String formattedTime(long millis) {
+        hr = TimeUnit.MILLISECONDS.toHours(millis);
+        min = TimeUnit.MILLISECONDS.toMinutes(millis - TimeUnit.HOURS.toMillis(hr));
+        sec = TimeUnit.MILLISECONDS.toSeconds(millis - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
         return String.format("%02d:%02d:%02d", hr, min, sec);
     }
 
@@ -100,7 +102,7 @@ public class Stopwatch {
         @Override
         public void run() {
             elapsedTime = (SystemClock.uptimeMillis() - startTime) - totalTimePaused;
-            timeText.setText(formattedTime());
+            timeText.setText(formattedTime(elapsedTime));
             handler.postDelayed(this, 0);
         }
     };
