@@ -5,6 +5,10 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by janedoe on 12/8/2015.
  */
@@ -20,27 +24,14 @@ public class Stopwatch {
     private long totalTimePaused;
     private long elapsedTime;
 
-    private int seconds;
-    private int minutes;
-    private int hours;
-
+    private long sec;
+    private long min;
+    private long hr;
 
     public Stopwatch(Activity activity) {
         timeText = (TextView) activity.findViewById(R.id.time);
         handler = new Handler();
     }
-
-    private Runnable r = new Runnable() {
-        @Override
-        public void run() {
-            elapsedTime = (SystemClock.uptimeMillis() - startTime) - totalTimePaused;
-            seconds = (int) (elapsedTime / 1000);
-            minutes = (seconds / 60);
-            seconds = seconds % 60;
-            timeText.setText(String.valueOf(elapsedTime));
-            handler.postDelayed(this, 0);
-        }
-    };
 
     public void start() {
         if (!recording && !paused) {
@@ -52,29 +43,20 @@ public class Stopwatch {
         }
     }
 
-    private void record() {
-        handler.postDelayed(r, 0);
-        recording = true;
-        paused = false;
-    }
-
     public void pause() {
         if (!paused && recording) {
             lastPausedAt = SystemClock.uptimeMillis();
-            handler.removeCallbacks(r);
+            handler.removeCallbacks(run);
             recording = false;
             paused = true;
         }
-
     }
 
     public void stop() {
         if (paused)
             reset();
-        else {
+        else
             pause();
-        }
-
     }
 
     public void reset() {
@@ -101,4 +83,25 @@ public class Stopwatch {
         return elapsedTime;
     }
 
+    private String formattedTime() {
+        hr = TimeUnit.MILLISECONDS.toHours(elapsedTime);
+        min = TimeUnit.MILLISECONDS.toMinutes(elapsedTime);
+        sec = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
+        return String.format("%02d:%02d:%02d", hr, min, sec);
+    }
+
+    private void record() {
+        handler.postDelayed(run, 0);
+        recording = true;
+        paused = false;
+    }
+
+    private Runnable run = new Runnable() {
+        @Override
+        public void run() {
+            elapsedTime = (SystemClock.uptimeMillis() - startTime) - totalTimePaused;
+            timeText.setText(formattedTime());
+            handler.postDelayed(this, 0);
+        }
+    };
 }
