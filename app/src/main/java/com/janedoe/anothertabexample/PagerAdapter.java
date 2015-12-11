@@ -4,6 +4,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.janedoe.anothertabexample.fragments.TabFragment1;
+import com.janedoe.anothertabexample.fragments.TabFragment2;
+import com.janedoe.anothertabexample.fragments.TabFragment3;
+
 /**
  * Created by janedoe on 12/5/2015.
  */

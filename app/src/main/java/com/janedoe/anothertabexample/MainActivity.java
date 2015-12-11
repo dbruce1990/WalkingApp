@@ -19,21 +19,20 @@ public class MainActivity extends AppCompatActivity {
     private Stopwatch stopwatch;
     private Button stopBtn;
     private Button recordBtn;
-    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        initToolBar();
+        initTabLayout();
+        initControlWidget();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        initToolBar();
-        initTabLayout();
-        initControlWidget();
+
     }
 
     @Override
@@ -65,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void initTabLayout() {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 1"));
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 2"));
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 3"));
+        tabLayout.addTab(tabLayout.newTab().setText("Previous"));
+        tabLayout.addTab(tabLayout.newTab().setText("Map"));
+        tabLayout.addTab(tabLayout.newTab().setText("Stats"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
