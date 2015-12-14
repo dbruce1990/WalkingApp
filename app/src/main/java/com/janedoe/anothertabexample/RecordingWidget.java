@@ -17,7 +17,12 @@ import android.widget.TextView;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 /**
  * Created by janedoe on 12/14/2015.
@@ -29,14 +34,19 @@ public class RecordingWidget {
     private Button recordBtn;
     private Button stopBtn;
     private MapView mapView;
+    private GoogleMap map;
     private Stopwatch stopwatch;
     private Activity activity;
     private TextView timeTextView;
     private LocationRequest locationRequest;
     private LocationManager locationManager;
+    private LatLng latlng;
+    private Marker marker;
+    private MarkerOptions markerOptions;
 
     private static RecordingWidget recordingWidget;
     private LocationListener locationListener;
+    private float zoomLevel = 16;
 
     public static RecordingWidget initialize(Activity activity) {
         if (recordingWidget == null)
@@ -55,6 +65,7 @@ public class RecordingWidget {
                     .addApi(LocationServices.API)
                     .build();
         }
+        mapView = (MapView) activity.findViewById(R.id.mapView);
     }
 
     private void initButtons() {
@@ -135,6 +146,8 @@ public class RecordingWidget {
             locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
+                    latlng = new LatLng(location.getLatitude(), location.getLongitude());
+
                     String result = "";
                     result += "Latitude: " + location.getLatitude();
                     result += "\n";
@@ -143,6 +156,23 @@ public class RecordingWidget {
                     result += "Accuracy: " + location.getAccuracy();
 
                     Log.d("Location", result);
+
+                    if(map == null){
+                        mapView = (MapView) activity.findViewById(R.id.mapView);
+                        map = mapView.getMap();
+                        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoomLevel));
+                    }
+
+                    if(marker == null){
+                       marker = map.addMarker(new MarkerOptions()
+                               .title("Current Location")
+                               .snippet(result)
+                               .position(latlng));
+                    }else{
+                        marker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+                        marker.setSnippet(result);
+                    }
+
                 }
 
                 @Override
@@ -173,7 +203,7 @@ public class RecordingWidget {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
+        locationManager.requestLocationUpdates("gps", 1000, 0, locationListener);
     }
 
     private void cancelLocationUpdates() {
