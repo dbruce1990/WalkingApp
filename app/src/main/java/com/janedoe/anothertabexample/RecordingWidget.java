@@ -160,7 +160,6 @@ public class RecordingWidget {
                     if(map == null){
                         mapView = (MapView) activity.findViewById(R.id.mapView);
                         map = mapView.getMap();
-                        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoomLevel));
                     }
 
                     if(marker == null){
@@ -172,7 +171,7 @@ public class RecordingWidget {
                         marker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
                         marker.setSnippet(result);
                     }
-
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoomLevel));
                 }
 
                 @Override
