@@ -71,10 +71,6 @@ public class Stopwatch {
         return paused;
     }
 
-    public long getElapsedTime() {
-        return elapsedTime;
-    }
-
     private String formattedTime(long millis) {
         hr = TimeUnit.MILLISECONDS.toHours(millis);
         min = TimeUnit.MILLISECONDS.toMinutes(millis - TimeUnit.HOURS.toMillis(hr));
@@ -87,7 +83,7 @@ public class Stopwatch {
     }
 
     private void record() {
-        handler.postDelayed(run, 1);
+        handler.postDelayed(run, 1000);
         recording = true;
         paused = false;
     }
@@ -96,7 +92,7 @@ public class Stopwatch {
         @Override
         public void run() {
             elapsedTime = (SystemClock.uptimeMillis() - startTime) - totalTimePaused;
-            handler.postDelayed(this, 1);
+            handler.postDelayed(this, 1000);
         }
     };
 }
