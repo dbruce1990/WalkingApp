@@ -1,8 +1,6 @@
-package com.janedoe.anothertabexample.models;
+package com.janedoe.anothertabexample.Models;
 
 import android.os.SystemClock;
-
-import java.util.Date;
 
 /**
  * Created by janedoe on 12/10/2015.

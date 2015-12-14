@@ -1,20 +1,14 @@
 package com.janedoe.anothertabexample;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
-import android.widget.TextView;
-
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by janedoe on 12/8/2015.
  */
 public class Stopwatch {
-    private final TextView timeText;
     private Handler handler;
 
     private boolean recording;
@@ -29,8 +23,7 @@ public class Stopwatch {
     private long min;
     private long hr;
 
-    public Stopwatch(Activity activity) {
-        timeText = (TextView) activity.findViewById(R.id.time);
+    public Stopwatch() {
         handler = new Handler();
     }
 
@@ -38,7 +31,6 @@ public class Stopwatch {
         if (!recording && !paused) {
             startTime = SystemClock.uptimeMillis();
             record();
-            Log.d("formatted time test: ", formattedTime(100000000));
         } else if (!recording && paused) {
             totalTimePaused += SystemClock.uptimeMillis() - lastPausedAt;
             record();
@@ -69,8 +61,6 @@ public class Stopwatch {
         lastPausedAt = 0;
         totalTimePaused = 0;
         elapsedTime = 0;
-
-        timeText.setText("00:00:00");
     }
 
     public boolean isRecording() {
@@ -92,8 +82,12 @@ public class Stopwatch {
         return String.format("%02d:%02d:%02d", hr, min, sec);
     }
 
+    public String getFormattedElapsedTime(){
+        return formattedTime(elapsedTime);
+    }
+
     private void record() {
-        handler.postDelayed(run, 0);
+        handler.postDelayed(run, 1);
         recording = true;
         paused = false;
     }
@@ -102,8 +96,7 @@ public class Stopwatch {
         @Override
         public void run() {
             elapsedTime = (SystemClock.uptimeMillis() - startTime) - totalTimePaused;
-            timeText.setText(formattedTime(elapsedTime));
-            handler.postDelayed(this, 0);
+            handler.postDelayed(this, 1);
         }
     };
 }

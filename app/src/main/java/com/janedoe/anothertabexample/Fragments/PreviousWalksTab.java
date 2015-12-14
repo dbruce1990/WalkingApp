@@ -1,27 +1,24 @@
-package com.janedoe.anothertabexample.fragments;
+package com.janedoe.anothertabexample.Fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.janedoe.anothertabexample.R;
-import com.janedoe.anothertabexample.models.WalkModel;
+import com.janedoe.anothertabexample.Models.WalkModel;
 
 import java.util.ArrayList;
 import com.janedoe.anothertabexample.Adapters.*;
 
-public class TabFragment1 extends Fragment {
-
+public class PreviousWalksTab extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.tab_fragment_1, container, false);
+        View root = inflater.inflate(R.layout.fragment_previous_walks, container, false);
         ArrayList<WalkModel> walks = new ArrayList<>();
         WalkModel walk1 = new WalkModel();
         walk1.setDescription("Walked around the block.");
@@ -48,16 +45,8 @@ public class TabFragment1 extends Fragment {
         walks.add(walk3);
         walks.add(walk4);
 
-        ListItemAdapter listAdapter = new ListItemAdapter(getContext(), R.layout.list_item_fragment, walks);
-        if(listAdapter == null)
-            Log.d("ListAdapter: ", "Null!!!");
-        else
-            Log.d("ListAdapter: ", "Not Null!!!");
+        ListItemAdapter listAdapter = new ListItemAdapter(getContext(), R.layout.fragment_previous_walk_item, walks);
         ListView listView = (ListView) root.findViewById(R.id.list_view);
-        if(listView == null)
-            Log.d("ListView: ", "Null!!!");
-        else
-            Log.d("ListView: ", "Not Null!!!");
         listView.setAdapter(listAdapter);
 
         return root;

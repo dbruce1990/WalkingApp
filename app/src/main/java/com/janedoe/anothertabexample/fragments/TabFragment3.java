@@ -1,4 +1,4 @@
-package com.janedoe.anothertabexample.fragments;
+package com.janedoe.anothertabexample.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

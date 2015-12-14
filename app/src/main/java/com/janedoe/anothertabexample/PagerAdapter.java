@@ -4,9 +4,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.janedoe.anothertabexample.fragments.TabFragment1;
-import com.janedoe.anothertabexample.fragments.TabFragment2;
-import com.janedoe.anothertabexample.fragments.TabFragment3;
+import com.janedoe.anothertabexample.Fragments.PreviousWalksTab;
+import com.janedoe.anothertabexample.Fragments.GoogleMapsFragment;
+import com.janedoe.anothertabexample.Fragments.TabFragment3;
 
 /**
  * Created by janedoe on 12/5/2015.
@@ -23,14 +23,14 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         switch(position){
             case 0:
-                TabFragment1 tab1 = new TabFragment1();
-                return tab1;
+                PreviousWalksTab previousWalksTab = new PreviousWalksTab();
+                return previousWalksTab;
             case 1:
-                TabFragment2 tab2 = new TabFragment2();
-                return tab2;
+                GoogleMapsFragment mapTab = new GoogleMapsFragment();
+                return mapTab;
             case 2:
-                TabFragment3 tab3 = new TabFragment3();
-                return  tab3;
+                TabFragment3 statisticsTab = new TabFragment3();
+                return  statisticsTab;
             default:
                 return null;
         }

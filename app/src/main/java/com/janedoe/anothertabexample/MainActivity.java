@@ -5,20 +5,10 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
-import java.util.logging.Handler;
 
 public class MainActivity extends AppCompatActivity {
-
-    private Stopwatch stopwatch;
-    private Button stopBtn;
-    private Button recordBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initToolBar();
         initTabLayout();
-        initControlWidget();
+        RecordingWidget.initialize(this);
     }
 
     @Override
@@ -94,31 +84,4 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initControlWidget() {
-        recordBtn = (Button) findViewById(R.id.recordBtn);
-        stopBtn = (Button) findViewById(R.id.stopBtn);
-        stopwatch = new Stopwatch(this);
-
-        recordBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (stopwatch.isRecording()) {
-                    stopwatch.pause();
-                    recordBtn.setText("Record");
-                }
-                else {
-                    stopwatch.start();
-                    recordBtn.setText("Pause");
-                }
-            }
-        });
-
-        stopBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopwatch.stop();
-                recordBtn.setText("Record");
-            }
-        });
-    }
 }

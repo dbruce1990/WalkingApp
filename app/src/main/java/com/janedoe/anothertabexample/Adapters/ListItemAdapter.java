@@ -5,12 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.janedoe.anothertabexample.R;
-import com.janedoe.anothertabexample.fragments.TabFragment1;
-import com.janedoe.anothertabexample.models.WalkModel;
+import com.janedoe.anothertabexample.Models.WalkModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,7 +26,7 @@ public class ListItemAdapter extends ArrayAdapter<WalkModel> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(getContext());
-        View listItem = inflater.inflate(R.layout.list_item_fragment, parent, false);
+        View listItem = inflater.inflate(R.layout.fragment_previous_walk_item, parent, false);
 
         WalkModel model = getItem(position);
 
