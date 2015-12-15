@@ -51,17 +51,15 @@ public class RecordingWidget {
     private TextView timeTextView;
     private LocationRequest locationRequest;
     private LocationManager locationManager;
-    private LatLng latlng;
-    private Marker marker;
     private PolylineOptions polylineOptions;
-    private Polyline polyline;
     private Location lastLocation;
 
     private static RecordingWidget recordingWidget;
     private LocationListener locationListener;
     private float zoomLevel = 18.5f;
-    private float accuracy = 3.0f;
     private boolean cameraInMotion = false;
+
+    private Gson gson;
 
     private RecordingWidget(Activity activity) {
         this.activity = activity;
@@ -74,11 +72,13 @@ public class RecordingWidget {
                     .addApi(LocationServices.API)
                     .build();
         }
+
+        gson = new Gson();
     }
 
     public static RecordingWidget initialize(Activity activity) {
         if (recordingWidget == null) {
-            if(activity == null){
+            if (activity == null) {
                 Log.d("RecordingWidget: ", "activity NULL in initialize()");
             }
             recordingWidget = new RecordingWidget(activity);
@@ -103,11 +103,10 @@ public class RecordingWidget {
         stopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (stopwatch.isPaused()) {
+                if (stopwatch.isPaused())
                     stop();
-                    timeTextView.setText("00:00:00");
-                } else
-                    stop();
+                else
+                    pause();
             }
         });
     }
@@ -116,8 +115,14 @@ public class RecordingWidget {
         stopwatch.stop();
         cancelLocationUpdates();
         handler.removeCallbacks(run);
-        recordBtn.setText("Record");
         saveWalk();
+
+        timeTextView.setText("00:00:00");
+        recordBtn.setText("Record");
+//        polylineOptions = null;
+//        lastLocation = null;
+        map.clear();
+        map.setMyLocationEnabled(false);
     }
 
     private void saveWalk() {
@@ -135,12 +140,14 @@ public class RecordingWidget {
         requestLocationUpdates();
         updateUI();
         recordBtn.setText("Pause");
+        map.setMyLocationEnabled(true);
     }
 
     private void pause() {
         stopwatch.pause();
         handler.removeCallbacks(run);
         recordBtn.setText("Record");
+        cancelLocationUpdates();
     }
 
     private void updateUI() {
@@ -203,10 +210,11 @@ public class RecordingWidget {
                 public void onLocationChanged(Location location) {
                     if (lastLocation == null)
                         lastLocation = location;
-                    latlng = new LatLng(location.getLatitude(), location.getLongitude());
-                    updateMarker(location);
-                    updateCamera();
-                    drawPolyLines();
+                    LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
+
+                    Log.d("latlng ", gson.toJson(latlng));
+                    updateCamera(latlng);
+                    drawPolyLines(latlng);
                     lastLocation = location;
                 }
 
@@ -243,7 +251,7 @@ public class RecordingWidget {
         }
     }
 
-    private void updateCamera() {
+    private void updateCamera(LatLng latlng) {
         if (!cameraInMotion) {
             cameraInMotion = true;
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoomLevel), new GoogleMap.CancelableCallback() {
@@ -260,26 +268,19 @@ public class RecordingWidget {
         }
     }
 
-    private void drawPolyLines() {
-        if (polylineOptions == null)
+    private void drawPolyLines(LatLng latlng) {
+        if (polylineOptions == null){
             polylineOptions = new PolylineOptions().add(latlng);
-        else {
+        Log.d("got", "here");}
 
-            polylineOptions.add(latlng);
-            polyline = map.addPolyline(polylineOptions);
-        }
-    }
-
-    private void updateMarker(Location location) {
-        if (marker == null)
-            marker = map.addMarker(new MarkerOptions()
-                    .title("Current Location")
-                    .position(latlng));
-        marker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+        polylineOptions.add(latlng);
+        map.addPolyline(polylineOptions);
     }
 
     private void initMap() {
         mapView = (MapView) activity.findViewById(R.id.mapView);
         map = mapView.getMap();
+
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
 }
