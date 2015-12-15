@@ -60,6 +60,7 @@ public class RecordingWidget {
     private boolean cameraInMotion = false;
 
     private Gson gson;
+    private Polyline polyline;
 
     private RecordingWidget(Activity activity) {
         this.activity = activity;
@@ -73,7 +74,7 @@ public class RecordingWidget {
                     .build();
         }
 
-        gson = new Gson();
+        gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
     public static RecordingWidget initialize(Activity activity) {
@@ -119,10 +120,13 @@ public class RecordingWidget {
 
         timeTextView.setText("00:00:00");
         recordBtn.setText("Record");
-//        polylineOptions = null;
-//        lastLocation = null;
         map.clear();
         map.setMyLocationEnabled(false);
+//        Log.d("Polyline: ", gson.toJson(polyline.getPoints()));
+//        Log.d("PolylineOptions: ", gson.toJson(polylineOptions));
+        lastLocation = null;
+        polylineOptions = null;
+        polyline.remove();
     }
 
     private void saveWalk() {
@@ -130,7 +134,7 @@ public class RecordingWidget {
         model.setDescription("This is a description.");
         model.setElapsed_time(1234325677);
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
         String result = gson.toJson(model);
         Log.d("WalkModel", result);
     }
@@ -159,8 +163,8 @@ public class RecordingWidget {
         public void run() {
             if (timeTextView == null)
                 timeTextView = (TextView) activity.findViewById(R.id.time);
-            timeTextView.setText(stopwatch.getFormattedElapsedTime());
 
+            timeTextView.setText(stopwatch.getFormattedElapsedTime());
             handler.postDelayed(this, 1000);
         }
     };
@@ -212,7 +216,8 @@ public class RecordingWidget {
                         lastLocation = location;
                     LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
 
-                    Log.d("latlng ", gson.toJson(latlng));
+//                    Log.d("latlng ", gson.toJson(latlng));
+                    map.clear();
                     updateCamera(latlng);
                     drawPolyLines(latlng);
                     lastLocation = location;
@@ -269,12 +274,14 @@ public class RecordingWidget {
     }
 
     private void drawPolyLines(LatLng latlng) {
-        if (polylineOptions == null){
+        if (polylineOptions == null) {
             polylineOptions = new PolylineOptions().add(latlng);
-        Log.d("got", "here");}
+//            Log.d("newPolylineOptions", gson.toJson(polylineOptions));
+        }
 
         polylineOptions.add(latlng);
-        map.addPolyline(polylineOptions);
+        polyline = map.addPolyline(polylineOptions);
+//        Log.d("newPolyline", gson.toJson(polyline.getPoints()));
     }
 
     private void initMap() {
