@@ -27,6 +27,13 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.janedoe.anothertabexample.Models.WalkModel;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * Created by janedoe on 12/14/2015.
@@ -56,12 +63,6 @@ public class RecordingWidget {
     private float accuracy = 3.0f;
     private boolean cameraInMotion = false;
 
-    public static RecordingWidget initialize(Activity activity) {
-        if (recordingWidget == null)
-            recordingWidget = new RecordingWidget(activity);
-        return recordingWidget;
-    }
-
     private RecordingWidget(Activity activity) {
         this.activity = activity;
         handler = new Handler();
@@ -73,6 +74,16 @@ public class RecordingWidget {
                     .addApi(LocationServices.API)
                     .build();
         }
+    }
+
+    public static RecordingWidget initialize(Activity activity) {
+        if (recordingWidget == null) {
+            if(activity == null){
+                Log.d("RecordingWidget: ", "activity NULL in initialize()");
+            }
+            recordingWidget = new RecordingWidget(activity);
+        }
+        return recordingWidget;
     }
 
     private void initButtons() {
@@ -106,6 +117,17 @@ public class RecordingWidget {
         cancelLocationUpdates();
         handler.removeCallbacks(run);
         recordBtn.setText("Record");
+        saveWalk();
+    }
+
+    private void saveWalk() {
+        WalkModel model = new WalkModel();
+        model.setDescription("This is a description.");
+        model.setElapsed_time(1234325677);
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String result = gson.toJson(model);
+        Log.d("WalkModel", result);
     }
 
     private void record() {
@@ -158,6 +180,22 @@ public class RecordingWidget {
         locationManager.requestLocationUpdates("gps", 1000, 0, locationListener);
     }
 
+    private void cancelLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        googleApiClient.disconnect();
+        locationManager.removeUpdates(locationListener);
+    }
+
     private void initLocationListener() {
         if (locationListener == null) {
             locationListener = new LocationListener() {
@@ -190,6 +228,21 @@ public class RecordingWidget {
         }
     }
 
+    private void initLocationManager() {
+        if (locationManager == null) {
+            locationManager = (LocationManager) activity.getSystemService(activity.LOCATION_SERVICE);
+        }
+    }
+
+    private void initLocationRequest() {
+        if (locationRequest == null) {
+            locationRequest = new LocationRequest();
+            locationRequest.setInterval(1000);
+            locationRequest.setFastestInterval(0);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        }
+    }
+
     private void updateCamera() {
         if (!cameraInMotion) {
             cameraInMotion = true;
@@ -204,21 +257,6 @@ public class RecordingWidget {
                     cameraInMotion = false;
                 }
             });
-        }
-    }
-
-    private void initLocationManager() {
-        if (locationManager == null) {
-            locationManager = (LocationManager) activity.getSystemService(activity.LOCATION_SERVICE);
-        }
-    }
-
-    private void initLocationRequest() {
-        if (locationRequest == null) {
-            locationRequest = new LocationRequest();
-            locationRequest.setInterval(1000);
-            locationRequest.setFastestInterval(0);
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
     }
 
@@ -243,21 +281,5 @@ public class RecordingWidget {
     private void initMap() {
         mapView = (MapView) activity.findViewById(R.id.mapView);
         map = mapView.getMap();
-    }
-
-    private void cancelLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        googleApiClient.disconnect();
-        locationManager.removeUpdates(locationListener);
     }
 }
