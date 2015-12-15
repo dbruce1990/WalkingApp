@@ -3,6 +3,7 @@ package com.janedoe.anothertabexample;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.hardware.camera2.CameraManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,12 +18,15 @@ import android.widget.TextView;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 /**
  * Created by janedoe on 12/14/2015.
@@ -42,11 +46,15 @@ public class RecordingWidget {
     private LocationManager locationManager;
     private LatLng latlng;
     private Marker marker;
-    private MarkerOptions markerOptions;
+    private PolylineOptions polylineOptions;
+    private Polyline polyline;
+    private Location lastLocation;
 
     private static RecordingWidget recordingWidget;
     private LocationListener locationListener;
-    private float zoomLevel = 16;
+    private float zoomLevel = 18.5f;
+    private float accuracy = 3.0f;
+    private boolean cameraInMotion = false;
 
     public static RecordingWidget initialize(Activity activity) {
         if (recordingWidget == null)
@@ -65,7 +73,6 @@ public class RecordingWidget {
                     .addApi(LocationServices.API)
                     .build();
         }
-        mapView = (MapView) activity.findViewById(R.id.mapView);
     }
 
     private void initButtons() {
@@ -130,48 +137,39 @@ public class RecordingWidget {
     };
 
     private void requestLocationUpdates() {
+
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
         googleApiClient.connect();
-        if (locationManager == null) {
-            locationManager = (LocationManager) activity.getSystemService(activity.LOCATION_SERVICE);
-        }
+        initMap();
+        initLocationManager();
+        initLocationRequest();
+        initLocationListener();
+        locationManager.requestLocationUpdates("gps", 1000, 0, locationListener);
+    }
 
-        if (locationRequest == null) {
-            locationRequest = new LocationRequest();
-            locationRequest.setInterval(1000);
-            locationRequest.setFastestInterval(0);
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        }
-
+    private void initLocationListener() {
         if (locationListener == null) {
             locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
+                    if (lastLocation == null)
+                        lastLocation = location;
                     latlng = new LatLng(location.getLatitude(), location.getLongitude());
-
-                    String result = "";
-                    result += "Latitude: " + location.getLatitude();
-                    result += "\n";
-                    result += "Longitude: " + location.getLongitude();
-                    result += "\n";
-                    result += "Accuracy: " + location.getAccuracy();
-
-                    Log.d("Location", result);
-
-                    if(map == null){
-                        mapView = (MapView) activity.findViewById(R.id.mapView);
-                        map = mapView.getMap();
-                    }
-
-                    if(marker == null){
-                       marker = map.addMarker(new MarkerOptions()
-                               .title("Current Location")
-                               .snippet(result)
-                               .position(latlng));
-                    }else{
-                        marker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
-                        marker.setSnippet(result);
-                    }
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoomLevel));
+                    updateMarker(location);
+                    updateCamera();
+                    drawPolyLines();
+                    lastLocation = location;
                 }
 
                 @Override
@@ -190,23 +188,64 @@ public class RecordingWidget {
                 }
             };
         }
+    }
 
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+    private void updateCamera() {
+        if (!cameraInMotion) {
+            cameraInMotion = true;
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoomLevel), new GoogleMap.CancelableCallback() {
+                @Override
+                public void onFinish() {
+                    cameraInMotion = false;
+                }
+
+                @Override
+                public void onCancel() {
+                    cameraInMotion = false;
+                }
+            });
         }
-        locationManager.requestLocationUpdates("gps", 1000, 0, locationListener);
+    }
+
+    private void initLocationManager() {
+        if (locationManager == null) {
+            locationManager = (LocationManager) activity.getSystemService(activity.LOCATION_SERVICE);
+        }
+    }
+
+    private void initLocationRequest() {
+        if (locationRequest == null) {
+            locationRequest = new LocationRequest();
+            locationRequest.setInterval(1000);
+            locationRequest.setFastestInterval(0);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        }
+    }
+
+    private void drawPolyLines() {
+        if (polylineOptions == null)
+            polylineOptions = new PolylineOptions().add(latlng);
+        else {
+
+            polylineOptions.add(latlng);
+            polyline = map.addPolyline(polylineOptions);
+        }
+    }
+
+    private void updateMarker(Location location) {
+        if (marker == null)
+            marker = map.addMarker(new MarkerOptions()
+                    .title("Current Location")
+                    .position(latlng));
+        marker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+    }
+
+    private void initMap() {
+        mapView = (MapView) activity.findViewById(R.id.mapView);
+        map = mapView.getMap();
     }
 
     private void cancelLocationUpdates() {
-        googleApiClient.disconnect();
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -218,6 +257,7 @@ public class RecordingWidget {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+        googleApiClient.disconnect();
         locationManager.removeUpdates(locationListener);
     }
 }
