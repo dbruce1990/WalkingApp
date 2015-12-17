@@ -3,7 +3,6 @@ package com.janedoe.anothertabexample;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.hardware.camera2.CameraManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -18,20 +17,15 @@ import android.widget.TextView;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.janedoe.anothertabexample.Models.WalkModel;
-
-import org.json.JSONObject;
+import com.janedoe.anothertabexample.Models.Route;
 
 import java.util.ArrayList;
 
@@ -53,6 +47,7 @@ public class RecordingWidget {
     private LocationManager locationManager;
     private PolylineOptions polylineOptions;
     private Location lastLocation;
+    private ArrayList<Location> locations = new ArrayList<>();
 
     private static RecordingWidget recordingWidget;
     private LocationListener locationListener;
@@ -123,20 +118,22 @@ public class RecordingWidget {
         map.clear();
         map.setMyLocationEnabled(false);
 //        Log.d("Polyline: ", gson.toJson(polyline.getPoints()));
-//        Log.d("PolylineOptions: ", gson.toJson(polylineOptions));
+        Log.d("PolylineOptions: ", gson.toJson(polylineOptions));
+        Log.d("Locations: ", gson.toJson(locations));
         lastLocation = null;
         polylineOptions = null;
         polyline.remove();
+        locations.clear();
     }
 
     private void saveWalk() {
-        WalkModel model = new WalkModel();
+        Route model = new Route();
         model.setDescription("This is a description.");
-        model.setElapsed_time(1234325677);
+        model.setElapsedTime(1234325677);
 
 
         String result = gson.toJson(model);
-        Log.d("WalkModel", result);
+        Log.d("Route", result);
     }
 
     private void record() {
@@ -188,7 +185,7 @@ public class RecordingWidget {
         initLocationManager();
         initLocationRequest();
         initLocationListener();
-        locationManager.requestLocationUpdates("gps", 1000, 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
     }
 
     private void cancelLocationUpdates() {
@@ -212,15 +209,23 @@ public class RecordingWidget {
             locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    if (lastLocation == null)
+                    if (lastLocation == null){
+                        Log.d("Location Accuracy: ", location.getAccuracy() + "\n" + String.valueOf(location));
+                        LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
+                        updateCamera(latlng);
+                        drawPolyLines(latlng);
+                        locations.add(location);
                         lastLocation = location;
-                    LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
-
-//                    Log.d("latlng ", gson.toJson(latlng));
-                    map.clear();
-                    updateCamera(latlng);
-                    drawPolyLines(latlng);
-                    lastLocation = location;
+                    }
+                    if (lastLocation.distanceTo(location) > 5) {
+                        Log.d("Location Accuracy: ", location.getAccuracy() + "\n" + String.valueOf(location));
+                        LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
+                        map.clear();
+                        updateCamera(latlng);
+                        drawPolyLines(latlng);
+                        locations.add(location);
+                        lastLocation = location;
+                    }
                 }
 
                 @Override
@@ -276,12 +281,9 @@ public class RecordingWidget {
     private void drawPolyLines(LatLng latlng) {
         if (polylineOptions == null) {
             polylineOptions = new PolylineOptions().add(latlng);
-//            Log.d("newPolylineOptions", gson.toJson(polylineOptions));
         }
-
         polylineOptions.add(latlng);
         polyline = map.addPolyline(polylineOptions);
-//        Log.d("newPolyline", gson.toJson(polyline.getPoints()));
     }
 
     private void initMap() {
@@ -289,5 +291,29 @@ public class RecordingWidget {
         map = mapView.getMap();
 
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+    }
+
+    private LatLng meanLatLngOfLocation(ArrayList<Location> locations) {
+        double lat = 0f, lng = 0f;
+        LatLng latlng;
+        String logLocations = "Locations size = " + String.valueOf(locations.size());
+        logLocations += "\n locations {";
+
+        for (Location location : locations) {
+            String str = "";
+            lat += location.getLatitude();
+            lng += location.getLongitude();
+            str += "\n Latitude: " + lat + ", Longitude: " + lng;
+            logLocations += str;
+        }
+        logLocations += "\n}";
+
+        double meanLat = lat / locations.size();
+        double meanLng = lng / locations.size();
+        latlng = new LatLng(meanLat, meanLng);
+        logLocations += "\n Mean: " + meanLat + ", " + meanLng;
+
+        Log.d("Locations: ", logLocations);
+        return latlng;
     }
 }

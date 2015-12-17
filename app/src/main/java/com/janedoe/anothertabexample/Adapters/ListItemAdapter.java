@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.janedoe.anothertabexample.Models.Route;
 import com.janedoe.anothertabexample.R;
-import com.janedoe.anothertabexample.Models.WalkModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,9 +17,9 @@ import java.util.Date;
 /**
  * Created by janedoe on 12/10/2015.
  */
-public class ListItemAdapter extends ArrayAdapter<WalkModel> {
+public class ListItemAdapter extends ArrayAdapter<Route> {
 
-    public ListItemAdapter(Context context, int resource, ArrayList<WalkModel> walks) {
+    public ListItemAdapter(Context context, int resource, ArrayList<Route> walks) {
         super(context,resource, walks);
     }
 
@@ -28,14 +28,14 @@ public class ListItemAdapter extends ArrayAdapter<WalkModel> {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View listItem = inflater.inflate(R.layout.fragment_previous_walk_item, parent, false);
 
-        WalkModel model = getItem(position);
+        Route model = getItem(position);
 
         TextView date = (TextView) listItem.findViewById(R.id.date);
         TextView elapsedTime = (TextView) listItem.findViewById(R.id.elapsed_time);
         TextView description = (TextView) listItem.findViewById(R.id.description);
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-        String formattedDate = sdf.format(new Date(model.getDate()));
+        String formattedDate = sdf.format(new Date(model.getCreatedAt()));
 
         date.setText(formattedDate);
         elapsedTime.setText(String.valueOf(model.getElapsedTime()));
