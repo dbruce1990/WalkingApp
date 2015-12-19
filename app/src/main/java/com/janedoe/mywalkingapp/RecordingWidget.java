@@ -2,10 +2,14 @@ package com.janedoe.mywalkingapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
@@ -28,11 +32,18 @@ import com.google.gson.GsonBuilder;
 import com.janedoe.mywalkingapp.Models.Route;
 import com.janedoe.mywalkingapp.Models.Waypoint;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
-
-/**
- * Created by janedoe on 12/14/2015.
- */
 public class RecordingWidget {
 
     private final TextView distanceTextView;
@@ -70,8 +81,10 @@ public class RecordingWidget {
             public void onClick(View v) {
                 if (stopwatch.isRecording())
                     pause();
-                else
+                else {
+                    Log.d("inside", "setOnClickListener!");
                     record();
+                }
             }
         });
 
@@ -104,6 +117,58 @@ public class RecordingWidget {
         totalDistance = 0;
     }
 
+    private class postData extends AsyncTask<String, Void, Void>{
+
+        @Override
+        protected Void doInBackground(String... params) {
+            //check network connection
+            ConnectivityManager connectivityManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            if(networkInfo != null && networkInfo.isConnected()){
+                //connection available
+                URL url;
+                HttpURLConnection urlConnection = null;
+                try {
+                    url = new URL("http://192.168.2.2:3000/walks/create");
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setChunkedStreamingMode(0);
+                    urlConnection.setRequestMethod("POST");
+                    urlConnection.setDoOutput(true);
+                    urlConnection.setRequestProperty("Content-Type", "application/json");
+
+                    urlConnection.connect();
+
+                    DataOutputStream outputStream = new DataOutputStream(urlConnection.getOutputStream());
+                    outputStream.writeBytes(params[0]);
+
+                    String res = "";
+                    InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+                    String line = "";
+                    while((line = br.readLine()) != null){
+//                    res += in.read();
+                        Log.d("response", String.valueOf(line));
+                    }
+                    outputStream.flush();
+                    outputStream.close();
+                    inputStream.close();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }finally {
+                    if(urlConnection != null)
+                        urlConnection.disconnect();
+                }
+
+            }else{
+                //display error
+            }
+
+            return null;
+        }
+    }
+
     private void saveWalk() {
         Route route = new Route();
 
@@ -114,6 +179,8 @@ public class RecordingWidget {
 
         String result = gson.toJson(route);
         Log.d("Route", result);
+
+        new postData().execute(result);
     }
 
     private void record() {
@@ -121,7 +188,6 @@ public class RecordingWidget {
         requestLocationUpdates();
         updateUI();
         recordBtn.setText("Pause");
-        map.setMyLocationEnabled(true);
     }
 
     private void pause() {
@@ -132,7 +198,7 @@ public class RecordingWidget {
     }
 
     private void updateUI() {
-        handler.postDelayed(run, 1000);
+        handler.post(run);
     }
 
     private Runnable run = new Runnable() {
@@ -141,7 +207,7 @@ public class RecordingWidget {
             timeTextView.setText(stopwatch.getFormattedElapsedTime());
             //TODO: convert to miles
             distanceTextView.setText(String.valueOf(Math.round((totalDistance * 0.00062137) * 100) / 100) + " mi");
-            handler.postDelayed(this, 1000);
+            handler.post(this);
         }
     };
 
@@ -159,6 +225,7 @@ public class RecordingWidget {
             return;
         }
 
+        Log.d("requestLocationUpdates", "GOT HERE!");
         googleApiClient.connect();
         initMap();
         initLocationManager();
@@ -190,13 +257,14 @@ public class RecordingWidget {
                 public void onLocationChanged(Location location) {
                     if (lastLocation != null) {
                         float distanceBetween = lastLocation.distanceTo(location);
-                        if (location.getAccuracy() > 15) {
+                        if (location.getAccuracy() > 10) {
                             waypoint = new Waypoint(location);
                             waypoints.add(waypoint);
 
                             Log.d("location", gson.toJson(location));
                             Log.d("distanceBetween", String.valueOf(distanceBetween));
-                                    map.clear();
+
+                            map.clear();
                             updateCamera(waypoint.getLatLng());
                             updatePolylines(waypoint.getLatLng());
                         }
@@ -268,30 +336,8 @@ public class RecordingWidget {
         map = mapView.getMap();
 
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-    }
-
-    private LatLng meanLatLngOfLocation(ArrayList<Location> locations) {
-        double lat = 0f, lng = 0f;
-        LatLng latlng;
-        String logLocations = "Locations size = " + String.valueOf(locations.size());
-        logLocations += "\n locations {";
-
-        for (Location location : locations) {
-            String str = "";
-            lat += location.getLatitude();
-            lng += location.getLongitude();
-            str += "\n Latitude: " + lat + ", Longitude: " + lng;
-            logLocations += str;
-        }
-        logLocations += "\n}";
-
-        double meanLat = lat / locations.size();
-        double meanLng = lng / locations.size();
-        latlng = new LatLng(meanLat, meanLng);
-        logLocations += "\n Mean: " + meanLat + ", " + meanLng;
-
-        Log.d("Locations: ", logLocations);
-        return latlng;
+        map.setMyLocationEnabled(true);
+        Log.d("GET", "HERE");
     }
 
     public static RecordingWidget initialize(Activity activity) {
