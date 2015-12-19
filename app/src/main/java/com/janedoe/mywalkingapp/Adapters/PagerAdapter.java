@@ -1,12 +1,12 @@
-package com.janedoe.anothertabexample;
+package com.janedoe.mywalkingapp.Adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.janedoe.anothertabexample.Fragments.PreviousWalksTab;
-import com.janedoe.anothertabexample.Fragments.GoogleMapsFragment;
-import com.janedoe.anothertabexample.Fragments.TabFragment3;
+import com.janedoe.mywalkingapp.Fragments.PreviousWalksTab;
+import com.janedoe.mywalkingapp.Fragments.GoogleMapsFragment;
+import com.janedoe.mywalkingapp.Fragments.TabFragment3;
 
 /**
  * Created by janedoe on 12/5/2015.

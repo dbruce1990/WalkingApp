@@ -1,7 +1,6 @@
-package com.janedoe.anothertabexample.Models;
+package com.janedoe.mywalkingapp.Models;
 
 import android.os.SystemClock;
-import android.util.Log;
 
 import java.util.ArrayList;
 

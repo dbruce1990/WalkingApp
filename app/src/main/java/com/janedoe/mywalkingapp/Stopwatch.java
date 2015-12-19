@@ -1,8 +1,8 @@
-package com.janedoe.anothertabexample;
+package com.janedoe.mywalkingapp;
 
 import android.os.Handler;
 import android.os.SystemClock;
-import android.util.Log;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,11 +29,9 @@ public class Stopwatch {
 
     public void start() {
         if (!recording && !paused) {
-            startTime = SystemClock.uptimeMillis();
             record();
         } else if (!recording && paused) {
-            totalTimePaused += SystemClock.uptimeMillis() - lastPausedAt;
-            record();
+            resume();
         }
     }
 
@@ -46,21 +44,29 @@ public class Stopwatch {
         }
     }
 
-    public void stop() {
-        if (paused)
-            reset();
-        else
-            pause();
+    private void resume() {
+        totalTimePaused += SystemClock.uptimeMillis() - lastPausedAt;
+        handler.postDelayed(run, 1000);
+        recording = true;
+        paused = false;
     }
 
-    public void reset() {
-        recording = false;
-        paused = false;
+    private void record() {
+        if (confirmNewRecording()){
+            elapsedTime = 0;
+            lastPausedAt = 0;
+            totalTimePaused = 0;
 
-        startTime = 0;
-        lastPausedAt = 0;
-        totalTimePaused = 0;
-        elapsedTime = 0;
+            startTime = SystemClock.uptimeMillis();
+            recording = true;
+            paused = false;
+            handler.postDelayed(run, 1000);
+        }
+    }
+
+    private boolean confirmNewRecording() {
+        //TODO: implement confirmation dialogue if previous recording has not yet been saved
+        return true;
     }
 
     public boolean isRecording() {
@@ -78,14 +84,8 @@ public class Stopwatch {
         return String.format("%02d:%02d:%02d", hr, min, sec);
     }
 
-    public String getFormattedElapsedTime(){
+    public String getFormattedElapsedTime() {
         return formattedTime(elapsedTime);
-    }
-
-    private void record() {
-        handler.postDelayed(run, 1000);
-        recording = true;
-        paused = false;
     }
 
     private Runnable run = new Runnable() {
@@ -95,4 +95,13 @@ public class Stopwatch {
             handler.postDelayed(this, 1000);
         }
     };
+
+    public long getElapsedTime() {
+        return elapsedTime;
+    }
+
+    public void stopAndSave() {
+        pause();
+        //TODO: Save recording? Maybe not though...leaving this here for now, not sure if this is the right place to do this yet.
+    }
 }

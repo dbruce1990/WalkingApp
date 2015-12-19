@@ -1,4 +1,4 @@
-package com.janedoe.anothertabexample.Adapters;
+package com.janedoe.mywalkingapp.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.janedoe.anothertabexample.Models.Route;
-import com.janedoe.anothertabexample.R;
+import com.janedoe.mywalkingapp.Models.Route;
+import com.janedoe.mywalkingapp.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

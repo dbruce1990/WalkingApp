@@ -1,4 +1,4 @@
-package com.janedoe.anothertabexample.Fragments;
+package com.janedoe.mywalkingapp.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.janedoe.anothertabexample.R;
+import com.janedoe.mywalkingapp.R;
 
 public class TabFragment3 extends Fragment {
 

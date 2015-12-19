@@ -1,22 +1,15 @@
-package com.janedoe.anothertabexample.Fragments;
+package com.janedoe.mywalkingapp.Fragments;
 
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.janedoe.anothertabexample.R;
+import com.janedoe.mywalkingapp.R;
 
 public class GoogleMapsFragment extends Fragment {
 

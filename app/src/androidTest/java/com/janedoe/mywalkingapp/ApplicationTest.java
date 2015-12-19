@@ -1,4 +1,4 @@
-package com.janedoe.anothertabexample;
+package com.janedoe.mywalkingapp;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

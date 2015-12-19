@@ -1,26 +1,27 @@
-package com.janedoe.anothertabexample.Models;
+package com.janedoe.mywalkingapp.Models;
 
 import android.location.Location;
 import android.os.SystemClock;
+
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Created by janedoe on 12/17/2015.
  */
 public class Waypoint {
-    double latitude;
-    double longitude;
-    float createdAt;
+    double createdAt;
     float accuracy;
+    private LatLng latlng;
 
     public double getLatitude() {
-        return latitude;
+        return latlng.latitude;
     }
 
     public double getLongitude() {
-        return longitude;
+        return latlng.longitude;
     }
 
-    public float getCreatedAt() {
+    public double getCreatedAt() {
         return createdAt;
     }
 
@@ -28,11 +29,13 @@ public class Waypoint {
         return accuracy;
     }
 
-    public Waypoint(Location location){
-        createdAt = SystemClock.uptimeMillis();
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();
-        accuracy = location.getAccuracy();
+    public LatLng getLatLng() {
+        return latlng;
     }
 
+    public Waypoint(Location location){
+        createdAt = SystemClock.uptimeMillis();
+        accuracy = location.getAccuracy();
+        latlng = new LatLng(location.getLatitude(), location.getLongitude());
+    }
 }

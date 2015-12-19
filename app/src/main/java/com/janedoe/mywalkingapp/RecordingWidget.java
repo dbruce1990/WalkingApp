@@ -1,4 +1,4 @@
-package com.janedoe.anothertabexample;
+package com.janedoe.mywalkingapp;
 
 import android.Manifest;
 import android.app.Activity;
@@ -25,7 +25,8 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.janedoe.anothertabexample.Models.Route;
+import com.janedoe.mywalkingapp.Models.Route;
+import com.janedoe.mywalkingapp.Models.Waypoint;
 
 import java.util.ArrayList;
 
@@ -34,6 +35,7 @@ import java.util.ArrayList;
  */
 public class RecordingWidget {
 
+    private final TextView distanceTextView;
     private GoogleApiClient googleApiClient;
     private Handler handler;
     private Button recordBtn;
@@ -47,7 +49,8 @@ public class RecordingWidget {
     private LocationManager locationManager;
     private PolylineOptions polylineOptions;
     private Location lastLocation;
-    private ArrayList<Location> locations = new ArrayList<>();
+    private Waypoint waypoint;
+    private float totalDistance= 0;
 
     private static RecordingWidget recordingWidget;
     private LocationListener locationListener;
@@ -55,32 +58,8 @@ public class RecordingWidget {
     private boolean cameraInMotion = false;
 
     private Gson gson;
-    private Polyline polyline;
-
-    private RecordingWidget(Activity activity) {
-        this.activity = activity;
-        handler = new Handler();
-        stopwatch = new Stopwatch();
-        initButtons();
-
-        if (googleApiClient == null) {
-            googleApiClient = new GoogleApiClient.Builder(activity)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-
-        gson = new GsonBuilder().setPrettyPrinting().create();
-    }
-
-    public static RecordingWidget initialize(Activity activity) {
-        if (recordingWidget == null) {
-            if (activity == null) {
-                Log.d("RecordingWidget: ", "activity NULL in initialize()");
-            }
-            recordingWidget = new RecordingWidget(activity);
-        }
-        return recordingWidget;
-    }
+//    private Polyline polyline;
+    private ArrayList<Waypoint> waypoints = new ArrayList<>();
 
     private void initButtons() {
         recordBtn = (Button) activity.findViewById(R.id.recordBtn);
@@ -108,7 +87,6 @@ public class RecordingWidget {
     }
 
     private void stop() {
-        stopwatch.stop();
         cancelLocationUpdates();
         handler.removeCallbacks(run);
         saveWalk();
@@ -117,22 +95,24 @@ public class RecordingWidget {
         recordBtn.setText("Record");
         map.clear();
         map.setMyLocationEnabled(false);
-//        Log.d("Polyline: ", gson.toJson(polyline.getPoints()));
+
         Log.d("PolylineOptions: ", gson.toJson(polylineOptions));
-        Log.d("Locations: ", gson.toJson(locations));
+        Log.d("Waypoints: ", gson.toJson(waypoints));
         lastLocation = null;
         polylineOptions = null;
-        polyline.remove();
-        locations.clear();
+        waypoints.clear();
+        totalDistance = 0;
     }
 
     private void saveWalk() {
-        Route model = new Route();
-        model.setDescription("This is a description.");
-        model.setElapsedTime(1234325677);
+        Route route = new Route();
 
+        route.setElapsedTime(stopwatch.getElapsedTime());
+        route.setWaypoints(waypoints);
+        route.setDescription("Test Description!");
+        route.setDistance(totalDistance);
 
-        String result = gson.toJson(model);
+        String result = gson.toJson(route);
         Log.d("Route", result);
     }
 
@@ -158,10 +138,9 @@ public class RecordingWidget {
     private Runnable run = new Runnable() {
         @Override
         public void run() {
-            if (timeTextView == null)
-                timeTextView = (TextView) activity.findViewById(R.id.time);
-
             timeTextView.setText(stopwatch.getFormattedElapsedTime());
+            //TODO: convert to miles
+            distanceTextView.setText(String.valueOf(Math.round((totalDistance * 0.00062137) * 100) / 100) + " mi");
             handler.postDelayed(this, 1000);
         }
     };
@@ -209,23 +188,21 @@ public class RecordingWidget {
             locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    if (lastLocation == null){
-                        Log.d("Location Accuracy: ", location.getAccuracy() + "\n" + String.valueOf(location));
-                        LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
-                        updateCamera(latlng);
-                        drawPolyLines(latlng);
-                        locations.add(location);
-                        lastLocation = location;
+                    if (lastLocation != null) {
+                        float distanceBetween = lastLocation.distanceTo(location);
+                        if (location.getAccuracy() > 15) {
+                            waypoint = new Waypoint(location);
+                            waypoints.add(waypoint);
+
+                            Log.d("location", gson.toJson(location));
+                            Log.d("distanceBetween", String.valueOf(distanceBetween));
+                                    map.clear();
+                            updateCamera(waypoint.getLatLng());
+                            updatePolylines(waypoint.getLatLng());
+                        }
+                        totalDistance += distanceBetween;
                     }
-                    if (lastLocation.distanceTo(location) > 5) {
-                        Log.d("Location Accuracy: ", location.getAccuracy() + "\n" + String.valueOf(location));
-                        LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
-                        map.clear();
-                        updateCamera(latlng);
-                        drawPolyLines(latlng);
-                        locations.add(location);
-                        lastLocation = location;
-                    }
+                    lastLocation = location;
                 }
 
                 @Override
@@ -278,12 +255,12 @@ public class RecordingWidget {
         }
     }
 
-    private void drawPolyLines(LatLng latlng) {
+    private void updatePolylines(LatLng latlng) {
         if (polylineOptions == null) {
             polylineOptions = new PolylineOptions().add(latlng);
         }
         polylineOptions.add(latlng);
-        polyline = map.addPolyline(polylineOptions);
+        map.addPolyline(polylineOptions);
     }
 
     private void initMap() {
@@ -315,5 +292,32 @@ public class RecordingWidget {
 
         Log.d("Locations: ", logLocations);
         return latlng;
+    }
+
+    public static RecordingWidget initialize(Activity activity) {
+        if (recordingWidget == null) {
+            if (activity == null) {
+                Log.d("RecordingWidget: ", "activity NULL in initialize()");
+            }
+            recordingWidget = new RecordingWidget(activity);
+        }
+        return recordingWidget;
+    }
+
+    private RecordingWidget(Activity activity) {
+        this.activity = activity;
+        handler = new Handler();
+        stopwatch = new Stopwatch();
+        initButtons();
+
+        if (googleApiClient == null) {
+            googleApiClient = new GoogleApiClient.Builder(activity)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+
+        gson = new GsonBuilder().setPrettyPrinting().create();
+        timeTextView = (TextView) activity.findViewById(R.id.time);
+        distanceTextView = (TextView) activity.findViewById(R.id.distance);
     }
 }
