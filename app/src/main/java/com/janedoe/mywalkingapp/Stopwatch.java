@@ -64,6 +64,13 @@ public class Stopwatch {
         }
     }
 
+    public void stopAndReset(){
+        startTime = 0;
+        lastPausedAt = 0;
+        totalTimePaused = 0;
+        elapsedTime = 0;
+    }
+
     private boolean confirmNewRecording() {
         //TODO: implement confirmation dialogue if previous recording has not yet been saved
         return true;
@@ -98,10 +105,5 @@ public class Stopwatch {
 
     public long getElapsedTime() {
         return elapsedTime;
-    }
-
-    public void stopAndSave() {
-        pause();
-        //TODO: Save recording? Maybe not though...leaving this here for now, not sure if this is the right place to do this yet.
     }
 }

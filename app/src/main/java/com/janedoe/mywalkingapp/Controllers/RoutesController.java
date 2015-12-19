@@ -1,6 +1,6 @@
 package com.janedoe.mywalkingapp.Controllers;
 
-import com.janedoe.mywalkingapp.Models.Route;
+import com.janedoe.mywalkingapp.Models.Walk;
 
 import java.util.ArrayList;
 
@@ -8,11 +8,11 @@ import java.util.ArrayList;
  * Created by janedoe on 12/19/2015.
  */
 public class RoutesController {
-    public ArrayList<Route> getAll(){
-        ArrayList<Route> routes = new ArrayList<>();
+    public ArrayList<Walk> getAll(){
+        ArrayList<Walk> walks = new ArrayList<>();
 
 
 
-        return routes;
+        return walks;
     }
 }

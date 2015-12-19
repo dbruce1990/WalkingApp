@@ -7,14 +7,12 @@ import java.util.ArrayList;
 /**
  * Created by janedoe on 12/10/2015.
  */
-public class Route {
+public class Walk {
     private String description;
     private long createdAt;
     private long elapsedTime;
     private float distance;
     private ArrayList<Waypoint> waypoints;
-
-    private final String logTag = "Route model: ";
 
     public void addWaypoint(Waypoint waypoint){
             if(waypoint != null)
@@ -57,7 +55,7 @@ public class Route {
         return elapsedTime;
     }
 
-    public Route() {
+    public Walk() {
         createdAt = SystemClock.uptimeMillis();
         description = "";
         elapsedTime = 0;

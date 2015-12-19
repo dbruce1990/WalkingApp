@@ -25,21 +25,18 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.janedoe.mywalkingapp.Models.Route;
+import com.janedoe.mywalkingapp.Models.Walk;
 import com.janedoe.mywalkingapp.Models.Waypoint;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -115,6 +112,7 @@ public class RecordingWidget {
         polylineOptions = null;
         waypoints.clear();
         totalDistance = 0;
+        stopwatch.stopAndReset();
     }
 
     private class postData extends AsyncTask<String, Void, Void>{
@@ -129,7 +127,7 @@ public class RecordingWidget {
                 URL url;
                 HttpURLConnection urlConnection = null;
                 try {
-                    url = new URL("http://192.168.2.2:3000/walks/create");
+                    url = new URL("http://192.168.2.2:3000/walks");
                     urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setChunkedStreamingMode(0);
                     urlConnection.setRequestMethod("POST");
@@ -170,15 +168,15 @@ public class RecordingWidget {
     }
 
     private void saveWalk() {
-        Route route = new Route();
+        Walk walk = new Walk();
 
-        route.setElapsedTime(stopwatch.getElapsedTime());
-        route.setWaypoints(waypoints);
-        route.setDescription("Test Description!");
-        route.setDistance(totalDistance);
+        walk.setElapsedTime(stopwatch.getElapsedTime());
+        walk.setWaypoints(waypoints);
+        walk.setDescription("Test Description!");
+        walk.setDistance(totalDistance);
 
-        String result = gson.toJson(route);
-        Log.d("Route", result);
+        String result = gson.toJson(walk);
+        Log.d("Walk", result);
 
         new postData().execute(result);
     }
@@ -257,7 +255,7 @@ public class RecordingWidget {
                 public void onLocationChanged(Location location) {
                     if (lastLocation != null) {
                         float distanceBetween = lastLocation.distanceTo(location);
-                        if (location.getAccuracy() > 10) {
+                        if (location.getAccuracy() > 1) {
                             waypoint = new Waypoint(location);
                             waypoints.add(waypoint);
 
