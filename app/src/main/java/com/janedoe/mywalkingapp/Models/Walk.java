@@ -56,7 +56,7 @@ public class Walk {
     }
 
     public Walk() {
-        createdAt = SystemClock.uptimeMillis();
+        createdAt = System.currentTimeMillis();
         description = "";
         elapsedTime = 0;
         distance = 0;

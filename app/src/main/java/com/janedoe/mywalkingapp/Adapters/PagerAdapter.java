@@ -4,7 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.janedoe.mywalkingapp.Fragments.PreviousWalksTab;
+import com.janedoe.mywalkingapp.Fragments.PreviousWalksFragment;
 import com.janedoe.mywalkingapp.Fragments.GoogleMapsFragment;
 import com.janedoe.mywalkingapp.Fragments.TabFragment3;
 
@@ -23,8 +23,8 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         switch(position){
             case 0:
-                PreviousWalksTab previousWalksTab = new PreviousWalksTab();
-                return previousWalksTab;
+                PreviousWalksFragment previousWalksFragment = new PreviousWalksFragment();
+                return previousWalksFragment;
             case 1:
                 GoogleMapsFragment mapTab = new GoogleMapsFragment();
                 return mapTab;

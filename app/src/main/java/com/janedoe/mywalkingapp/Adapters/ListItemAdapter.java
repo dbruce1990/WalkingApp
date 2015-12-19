@@ -13,6 +13,7 @@ import com.janedoe.mywalkingapp.R;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by janedoe on 12/10/2015.
@@ -20,7 +21,7 @@ import java.util.Date;
 public class ListItemAdapter extends ArrayAdapter<Walk> {
 
     public ListItemAdapter(Context context, int resource, ArrayList<Walk> walks) {
-        super(context,resource, walks);
+        super(context, resource, walks);
     }
 
     @Override
@@ -28,18 +29,22 @@ public class ListItemAdapter extends ArrayAdapter<Walk> {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View listItem = inflater.inflate(R.layout.fragment_previous_walk_item, parent, false);
 
-        Walk model = getItem(position);
+        Walk walk = getItem(position);
 
         TextView date = (TextView) listItem.findViewById(R.id.date);
         TextView elapsedTime = (TextView) listItem.findViewById(R.id.elapsed_time);
         TextView description = (TextView) listItem.findViewById(R.id.description);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-        String formattedDate = sdf.format(new Date(model.getCreatedAt()));
+        date.setText(new SimpleDateFormat("MM/dd/yyyy").format(walk.getCreatedAt()));
 
-        date.setText(formattedDate);
-        elapsedTime.setText(String.valueOf(model.getElapsedTime()));
-        description.setText(model.getDescription());
+        String formattedTime = String.format("%02d:%02d:%02d",
+                TimeUnit.MILLISECONDS.toHours(walk.getElapsedTime()),
+                TimeUnit.MILLISECONDS.toMinutes(walk.getElapsedTime()) -
+                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(walk.getElapsedTime())),
+                TimeUnit.MILLISECONDS.toSeconds(walk.getElapsedTime()) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(walk.getElapsedTime())));
+        elapsedTime.setText(formattedTime);
+        description.setText(walk.getDescription());
 
         return listItem;
 

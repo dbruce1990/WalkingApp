@@ -32,7 +32,7 @@ import java.util.List;
 
 import com.janedoe.mywalkingapp.Adapters.*;
 
-public class PreviousWalksTab extends Fragment {
+public class PreviousWalksFragment extends Fragment {
 
     View root;
     SwipeRefreshLayout swipeRefreshLayout;
@@ -49,7 +49,6 @@ public class PreviousWalksTab extends Fragment {
                 new getWalks().execute();
             }
         });
-
         return root;
     }
 
@@ -79,7 +78,6 @@ public class PreviousWalksTab extends Fragment {
                         res += line;
                         Log.d("response", String.valueOf(line));
                     }
-
 
                     walks = new Gson().fromJson(res, new TypeToken<ArrayList<Walk>>() {
                     }.getType());
@@ -111,33 +109,4 @@ public class PreviousWalksTab extends Fragment {
             swipeRefreshLayout.setRefreshing(false);
         }
     }
-
-//    private ArrayList<Walk> getRoutes() {
-//        ArrayList<Walk> walks = new ArrayList<>();
-//        Walk walk1 = new Walk();
-//        walk1.setDescription("Walked around the block.");
-//        walk1.setElapsedTime(SystemClock.uptimeMillis() - 99999999);
-//        walk1.setElapsedTime(100000000);
-//
-//        Walk walk2 = new Walk();
-//        walk2.setDescription("Walked to store.");
-//        walk2.setElapsedTime(SystemClock.uptimeMillis() - 98999000);
-//        walk2.setElapsedTime(100000000);
-//
-//        Walk walk3 = new Walk();
-//        walk3.setDescription("Ran a million miles.");
-//        walk3.setElapsedTime(SystemClock.uptimeMillis() - 97999999);
-//        walk3.setElapsedTime(18222214);
-//
-//        Walk walk4 = new Walk();
-//        walk4.setDescription("Biked");
-//        walk4.setElapsedTime(SystemClock.uptimeMillis() - 96999999);
-//        walk4.setElapsedTime(4322342);
-//
-//        walks.add(walk1);
-//        walks.add(walk2);
-//        walks.add(walk3);
-//        walks.add(walk4);
-//        return walks;
-//    }
 }
