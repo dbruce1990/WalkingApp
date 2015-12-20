@@ -2,6 +2,7 @@ package com.janedoe.mywalkingapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -16,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -168,17 +170,29 @@ public class RecordingWidget {
     }
 
     private void saveWalk() {
-        Walk walk = new Walk();
+        final Dialog dialog = new Dialog(activity);
+        dialog.setContentView(R.layout.description_dialog);
 
-        walk.setElapsedTime(stopwatch.getElapsedTime());
-        walk.setWaypoints(waypoints);
-        walk.setDescription("Test Description!");
-        walk.setDistance(totalDistance);
+        Button saveDescriptionButton = (Button) dialog.findViewById(R.id.saveDescriptionButton);
+        saveDescriptionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Walk walk = new Walk();
 
-        String result = gson.toJson(walk);
-        Log.d("Walk", result);
+                walk.setElapsedTime(stopwatch.getElapsedTime());
+                walk.setWaypoints(waypoints);
+                walk.setDistance(totalDistance);
 
-        new postData().execute(result);
+                EditText descriptionTextView = (EditText) dialog.findViewById(R.id.descriptionTextView);
+                walk.setDescription(descriptionTextView.getText().toString());
+                String result = gson.toJson(walk);
+                Log.d("Walk", result);
+                new postData().execute(result);
+
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
     }
 
     private void record() {
