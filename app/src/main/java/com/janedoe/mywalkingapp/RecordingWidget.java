@@ -43,6 +43,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+
 public class RecordingWidget {
 
     private final TextView distanceTextView;
@@ -60,7 +61,7 @@ public class RecordingWidget {
     private PolylineOptions polylineOptions;
     private Location lastLocation;
     private Waypoint waypoint;
-    private float totalDistance= 0;
+    private float totalDistance = 0;
 
     private static RecordingWidget recordingWidget;
     private LocationListener locationListener;
@@ -68,7 +69,7 @@ public class RecordingWidget {
     private boolean cameraInMotion = false;
 
     private Gson gson;
-//    private Polyline polyline;
+    //    private Polyline polyline;
     private ArrayList<Waypoint> waypoints = new ArrayList<>();
 
     private void initButtons() {
@@ -99,37 +100,23 @@ public class RecordingWidget {
     }
 
     private void stop() {
-        cancelLocationUpdates();
-        handler.removeCallbacks(run);
+        Log.d("totalDistance", String.valueOf(totalDistance));
         saveWalk();
-
-        timeTextView.setText("00:00:00");
-        recordBtn.setText("Record");
-        map.clear();
-        map.setMyLocationEnabled(false);
-
-        Log.d("PolylineOptions: ", gson.toJson(polylineOptions));
-        Log.d("Waypoints: ", gson.toJson(waypoints));
-        lastLocation = null;
-        polylineOptions = null;
-        waypoints.clear();
-        totalDistance = 0;
-        stopwatch.stopAndReset();
     }
 
-    private class postData extends AsyncTask<String, Void, Void>{
+    private class postData extends AsyncTask<String, Void, Void> {
 
         @Override
         protected Void doInBackground(String... params) {
             //check network connection
             ConnectivityManager connectivityManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-            if(networkInfo != null && networkInfo.isConnected()){
+            if (networkInfo != null && networkInfo.isConnected()) {
                 //connection available
                 URL url;
                 HttpURLConnection urlConnection = null;
                 try {
-                    url = new URL("http://192.168.2.2:3000/walks");
+                    url = new URL("http://walkingapp.herokuapp.com/walks");
                     urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setChunkedStreamingMode(0);
                     urlConnection.setRequestMethod("POST");
@@ -145,7 +132,7 @@ public class RecordingWidget {
                     InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
                     BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
                     String line = "";
-                    while((line = br.readLine()) != null){
+                    while ((line = br.readLine()) != null) {
 //                    res += in.read();
                         Log.d("response", String.valueOf(line));
                     }
@@ -156,12 +143,12 @@ public class RecordingWidget {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
-                }finally {
-                    if(urlConnection != null)
+                } finally {
+                    if (urlConnection != null)
                         urlConnection.disconnect();
                 }
 
-            }else{
+            } else {
                 //display error
             }
 
@@ -185,11 +172,30 @@ public class RecordingWidget {
 
                 EditText descriptionTextView = (EditText) dialog.findViewById(R.id.descriptionTextView);
                 walk.setDescription(descriptionTextView.getText().toString());
+
                 String result = gson.toJson(walk);
                 Log.d("Walk", result);
+                Log.d("totalDistance", String.valueOf(totalDistance));
+
                 new postData().execute(result);
 
                 dialog.dismiss();
+
+                cancelLocationUpdates();
+                handler.removeCallbacks(run);
+
+                timeTextView.setText("00:00:00");
+                recordBtn.setText("Record");
+                map.clear();
+                map.setMyLocationEnabled(false);
+
+                Log.d("PolylineOptions: ", gson.toJson(polylineOptions));
+                Log.d("Waypoints: ", gson.toJson(waypoints));
+                lastLocation = null;
+                polylineOptions = null;
+                waypoints.clear();
+                totalDistance = 0;
+                stopwatch.stopAndReset();
             }
         });
         dialog.show();
@@ -198,7 +204,7 @@ public class RecordingWidget {
     private void record() {
         stopwatch.start();
         requestLocationUpdates();
-        updateUI();
+//        updateUI();
         recordBtn.setText("Pause");
     }
 
@@ -210,15 +216,21 @@ public class RecordingWidget {
     }
 
     private void updateUI() {
-        handler.post(run);
+//        handler.post(run);
+        timeTextView.setText(stopwatch.getFormattedElapsedTime());
+//        distanceTextView.setText(String.valueOf(totalDistance));
+        distanceTextView.setText(String.valueOf(Math.round((totalDistance * 0.00062137) * 100) / 100) + " mi");
+
     }
+
 
     private Runnable run = new Runnable() {
         @Override
         public void run() {
             timeTextView.setText(stopwatch.getFormattedElapsedTime());
-            //TODO: convert to miles
-            distanceTextView.setText(String.valueOf(Math.round((totalDistance * 0.00062137) * 100) / 100) + " mi");
+            distanceTextView.setText(String.valueOf(totalDistance));
+//            TODO: convert to miles
+//            distanceTextView.setText(String.valueOf(Math.round((totalDistance * 0.00062137) * 100) / 100) + " mi");
             handler.post(this);
         }
     };
@@ -269,18 +281,20 @@ public class RecordingWidget {
                 public void onLocationChanged(Location location) {
                     if (lastLocation != null) {
                         float distanceBetween = lastLocation.distanceTo(location);
-                        if (location.getAccuracy() > 1) {
-                            waypoint = new Waypoint(location);
-                            waypoints.add(waypoint);
+//                        if (location.getAccuracy() > 1) {
+                        waypoint = new Waypoint(location);
+                        waypoints.add(waypoint);
 
-                            Log.d("location", gson.toJson(location));
-                            Log.d("distanceBetween", String.valueOf(distanceBetween));
+                        Log.d("location", gson.toJson(location));
+                        Log.d("distanceBetween", String.valueOf(distanceBetween));
 
-                            map.clear();
-                            updateCamera(waypoint.getLatLng());
-                            updatePolylines(waypoint.getLatLng());
-                        }
+                        map.clear();
+                        updateCamera(waypoint.getLatLng());
+                        updatePolylines(waypoint.getLatLng());
+                        updateUI();
+//                        }
                         totalDistance += distanceBetween;
+                        Log.d("totalDistance", String.valueOf(totalDistance));
                     }
                     lastLocation = location;
                 }

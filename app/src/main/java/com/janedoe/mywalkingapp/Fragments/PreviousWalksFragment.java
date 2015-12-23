@@ -57,6 +57,7 @@ public class PreviousWalksFragment extends Fragment {
         @Override
         protected ArrayList<Walk> doInBackground(ArrayList<Walk>... params) {
             ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
             ArrayList<Walk> walks = new ArrayList<>();
             if (networkInfo != null && networkInfo.isConnected()) {
@@ -64,7 +65,7 @@ public class PreviousWalksFragment extends Fragment {
                 URL url;
                 HttpURLConnection urlConnection = null;
                 try {
-                    url = new URL("http://192.168.2.2:3000/walks");
+                    url = new URL("http://walkingapp.herokuapp.com/walks");
                     urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setChunkedStreamingMode(0);
                     urlConnection.setRequestMethod("GET");
