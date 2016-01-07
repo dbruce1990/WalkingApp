@@ -1,5 +1,6 @@
 package com.janedoe.mywalkingapp;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -9,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.janedoe.mywalkingapp.Adapters.PagerAdapter;
+import com.janedoe.mywalkingapp.Dialogs.LoginDialog;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +26,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        SharedPreferences settings = getSharedPreferences("WalkingAppSettings", 0);
+        final SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("isLoggedIn", false); //here just to reset each time
+        boolean isLoggedIn = settings.getBoolean("isLoggedIn", false);
+        if (!isLoggedIn) {
+            LoginDialog loginDialog = new LoginDialog(this);
+            loginDialog.show();
+        }
     }
 
     @Override
