@@ -1,5 +1,6 @@
 package com.janedoe.mywalkingapp;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,6 +14,7 @@ import com.google.gson.Gson;
 import com.janedoe.mywalkingapp.Handler.WebRequest;
 import com.janedoe.mywalkingapp.Models.UserModel;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -84,10 +86,22 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private Response.Listener<JSONObject> responseListener() {
+        final Activity activity = this;
+
         return new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 System.out.println(new Gson().toJson(response));
+                try {
+                    //check to see if registration was successful
+                    boolean success = response.getBoolean("success");
+                    if(success){
+                        //if registration was successful close activity
+                        activity.finish();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         };
     }

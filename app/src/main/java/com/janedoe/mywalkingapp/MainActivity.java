@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import com.android.volley.Response;
 import com.janedoe.mywalkingapp.Adapters.PagerAdapter;
 import com.janedoe.mywalkingapp.Controllers.UserController;
-import com.janedoe.mywalkingapp.Dialogs.LoginDialog;
 import com.janedoe.mywalkingapp.Handler.WebRequest;
 
 import org.json.JSONException;

@@ -1,5 +1,6 @@
 package com.janedoe.mywalkingapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -54,7 +55,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private View.OnClickListener loginBtnOnClickListener() {
-        final LoginActivity activity = this;
+        final Activity activity = this;
+
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -8,14 +8,11 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.janedoe.mywalkingapp.MainActivity;
+import com.janedoe.mywalkingapp.Singletons.VolleySingleton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import javax.xml.transform.ErrorListener;
 
 /**
  * Created by janedoe on 1/6/2016.
@@ -29,7 +26,7 @@ public class WebRequest{
     private String baseURL = "http://walkingapp.herokuapp.com";
 
     public WebRequest(Context context) {
-        requestQueue = Volley.newRequestQueue(context);
+        requestQueue = VolleySingleton.getInstance().getRequestQueue();
     }
 
     public void POST(String path, Object obj, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener){

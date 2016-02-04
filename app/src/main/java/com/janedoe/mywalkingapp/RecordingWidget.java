@@ -13,6 +13,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +21,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -30,8 +33,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.janedoe.mywalkingapp.Handler.WebRequest;
 import com.janedoe.mywalkingapp.Models.Walk;
 import com.janedoe.mywalkingapp.Models.Waypoint;
+
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -45,6 +51,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class RecordingWidget {
+    private WebRequest req;
 
     private final TextView distanceTextView;
     private GoogleApiClient googleApiClient;
@@ -76,27 +83,8 @@ public class RecordingWidget {
         recordBtn = (Button) activity.findViewById(R.id.recordBtn);
         stopBtn = (Button) activity.findViewById(R.id.stopBtn);
 
-        recordBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (stopwatch.isRecording())
-                    pause();
-                else {
-                    Log.d("inside", "setOnClickListener!");
-                    record();
-                }
-            }
-        });
-
-        stopBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (stopwatch.isPaused())
-                    stop();
-                else
-                    pause();
-            }
-        });
+        recordBtn.setOnClickListener(recordBtnOnCLickListener());
+        stopBtn.setOnClickListener(stopBtnOnClickListener());
     }
 
     private void stop() {
@@ -173,11 +161,12 @@ public class RecordingWidget {
                 EditText descriptionTextView = (EditText) dialog.findViewById(R.id.descriptionTextView);
                 walk.setDescription(descriptionTextView.getText().toString());
 
-                String result = gson.toJson(walk);
-                Log.d("Walk", result);
-                Log.d("totalDistance", String.valueOf(totalDistance));
+//                String result = gson.toJson(walk);
+//                Log.d("Walk", result);
+//                Log.d("totalDistance", String.valueOf(totalDistance));
 
-                new postData().execute(result);
+//                new postData().execute(result);
+                req.POST("/walks", walk, walkResponseListener(), walkResponseErrorListener());
 
                 dialog.dismiss();
 
@@ -199,6 +188,24 @@ public class RecordingWidget {
             }
         });
         dialog.show();
+    }
+
+    private Response.Listener<JSONObject> walkResponseListener() {
+        return new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                System.out.println(new Gson().toJson(response));
+            }
+        };
+    }
+
+    private Response.ErrorListener walkResponseErrorListener() {
+        return new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println(new Gson().toJson(error));
+            }
+        };
     }
 
     private void record() {
@@ -391,5 +398,34 @@ public class RecordingWidget {
         gson = new GsonBuilder().setPrettyPrinting().create();
         timeTextView = (TextView) activity.findViewById(R.id.time);
         distanceTextView = (TextView) activity.findViewById(R.id.distance);
+        req = new WebRequest(activity);
+    }
+
+    @NonNull
+    private View.OnClickListener stopBtnOnClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (stopwatch.isPaused())
+                    stop();
+                else
+                    pause();
+            }
+        };
+    }
+
+    @NonNull
+    private View.OnClickListener recordBtnOnCLickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (stopwatch.isRecording())
+                    pause();
+                else {
+                    Log.d("inside", "setOnClickListener!");
+                    record();
+                }
+            }
+        };
     }
 }
