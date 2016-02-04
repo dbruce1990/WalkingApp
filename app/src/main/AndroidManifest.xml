@@ -33,10 +33,11 @@
         <activity
             android:name="com.janedoe.mywalkingapp.LoginActivity"
             android:label="Login"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            />
+        <!--android:theme="@style/AppTheme.NoActionBar"-->
 
         <activity android:name=".RegistrationActivity"
-            android:label="Register" />
+            android:label="Registration" />
 
 
     </application>

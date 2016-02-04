@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -34,9 +35,10 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("Inflating layout");
         setContentView(R.layout.activity_login);
-        System.out.println("GOT HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         registerBtn = (Button) findViewById(R.id.login_registration_btn);
         loginBtn = (Button) findViewById(R.id.login_login_btn);
