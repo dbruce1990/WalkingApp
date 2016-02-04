@@ -398,7 +398,7 @@ public class RecordingWidget {
         gson = new GsonBuilder().setPrettyPrinting().create();
         timeTextView = (TextView) activity.findViewById(R.id.time);
         distanceTextView = (TextView) activity.findViewById(R.id.distance);
-        req = new WebRequest(activity);
+        req = WebRequest.getInstance();
     }
 
     @NonNull

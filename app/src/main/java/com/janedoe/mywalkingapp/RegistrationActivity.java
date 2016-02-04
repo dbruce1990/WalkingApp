@@ -44,7 +44,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
         signupBtn.setOnClickListener(signupBtnOnClickListener());
 
-        req = new WebRequest(this);
+        req = WebRequest.getInstance();
     }
 
     private View.OnClickListener signupBtnOnClickListener() {

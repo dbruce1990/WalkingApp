@@ -50,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(loginBtnOnClickListener());
 
         userController = UserController.getInstance(this);
-        req = new WebRequest(this);
+        req = WebRequest.getInstance();
     }
 
 

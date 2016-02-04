@@ -25,7 +25,13 @@ public class WebRequest{
     private Gson gson = new Gson();
     private String baseURL = "http://walkingapp.herokuapp.com";
 
-    public WebRequest(Context context) {
+    public static WebRequest getInstance(){
+        if(webRequest == null)
+            webRequest = new WebRequest();
+        return webRequest;
+    }
+
+    private WebRequest() {
         requestQueue = VolleySingleton.getInstance().getRequestQueue();
     }
 
