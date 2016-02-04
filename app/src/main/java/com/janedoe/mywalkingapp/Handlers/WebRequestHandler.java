@@ -1,6 +1,5 @@
-package com.janedoe.mywalkingapp.Handler;
+package com.janedoe.mywalkingapp.Handlers;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -17,21 +16,21 @@ import org.json.JSONObject;
 /**
  * Created by janedoe on 1/6/2016.
  */
-public class WebRequest{
-    private static WebRequest webRequest;
+public class WebRequestHandler {
+    private static WebRequestHandler webRequest;
     private RequestQueue requestQueue;
     private String requestTag = "Activity";
 
     private Gson gson = new Gson();
     private String baseURL = "http://walkingapp.herokuapp.com";
 
-    public static WebRequest getInstance(){
+    public static WebRequestHandler getInstance(){
         if(webRequest == null)
-            webRequest = new WebRequest();
+            webRequest = new WebRequestHandler();
         return webRequest;
     }
 
-    private WebRequest() {
+    private WebRequestHandler() {
         requestQueue = VolleySingleton.getInstance().getRequestQueue();
     }
 

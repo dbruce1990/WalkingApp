@@ -2,7 +2,7 @@ package com.janedoe.mywalkingapp.Singletons;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-import com.janedoe.mywalkingapp.MyApplication;
+import com.janedoe.mywalkingapp.Application.MyApplication;
 
 /**
  * Created by janedoe on 2/4/2016.

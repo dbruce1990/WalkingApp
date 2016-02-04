@@ -1,4 +1,4 @@
-package com.janedoe.mywalkingapp;
+package com.janedoe.mywalkingapp.Application;
 
 import android.app.Application;
 import android.content.Context;

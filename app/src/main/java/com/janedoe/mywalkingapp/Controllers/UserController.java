@@ -2,20 +2,16 @@ package com.janedoe.mywalkingapp.Controllers;
 
 import android.content.Context;
 
-import com.android.volley.Response;
-import com.janedoe.mywalkingapp.Handler.DatabaseHandler;
-import com.janedoe.mywalkingapp.Handler.WebRequest;
+import com.janedoe.mywalkingapp.Handlers.DatabaseHandler;
+import com.janedoe.mywalkingapp.Handlers.WebRequestHandler;
 import com.janedoe.mywalkingapp.Models.UserModel;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Created by janedoe on 1/26/2016.
  */
 public class UserController {
     DatabaseHandler db;
-    WebRequest req;
+    WebRequestHandler req;
 
     private static UserController controller;
     public static UserController getInstance(Context context){
@@ -25,7 +21,7 @@ public class UserController {
     }
     private UserController(Context context){
         db = DatabaseHandler.getInstance(context);
-//        req = WebRequest.getInstance(context);
+//        req = WebRequestHandler.getInstance(context);
     }
 
     public UserModel login(UserModel user){

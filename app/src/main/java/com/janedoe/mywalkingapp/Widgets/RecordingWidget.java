@@ -1,4 +1,4 @@
-package com.janedoe.mywalkingapp;
+package com.janedoe.mywalkingapp.Widgets;
 
 import android.Manifest;
 import android.app.Activity;
@@ -33,9 +33,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.janedoe.mywalkingapp.Handler.WebRequest;
+import com.janedoe.mywalkingapp.Handlers.WebRequestHandler;
 import com.janedoe.mywalkingapp.Models.Walk;
 import com.janedoe.mywalkingapp.Models.Waypoint;
+import com.janedoe.mywalkingapp.R;
 
 import org.json.JSONObject;
 
@@ -51,7 +52,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class RecordingWidget {
-    private WebRequest req;
+    private WebRequestHandler req;
 
     private final TextView distanceTextView;
     private GoogleApiClient googleApiClient;
@@ -60,7 +61,7 @@ public class RecordingWidget {
     private Button stopBtn;
     private MapView mapView;
     private GoogleMap map;
-    private Stopwatch stopwatch;
+    private StopwatchWidget stopwatch;
     private Activity activity;
     private TextView timeTextView;
     private LocationRequest locationRequest;
@@ -386,7 +387,7 @@ public class RecordingWidget {
     private RecordingWidget(Activity activity) {
         this.activity = activity;
         handler = new Handler();
-        stopwatch = new Stopwatch();
+        stopwatch = new StopwatchWidget();
         initButtons();
 
         if (googleApiClient == null) {
@@ -398,7 +399,7 @@ public class RecordingWidget {
         gson = new GsonBuilder().setPrettyPrinting().create();
         timeTextView = (TextView) activity.findViewById(R.id.time);
         distanceTextView = (TextView) activity.findViewById(R.id.distance);
-        req = WebRequest.getInstance();
+        req = WebRequestHandler.getInstance();
     }
 
     @NonNull

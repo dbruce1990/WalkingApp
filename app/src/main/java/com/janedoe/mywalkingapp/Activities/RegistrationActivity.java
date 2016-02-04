@@ -1,4 +1,4 @@
-package com.janedoe.mywalkingapp;
+package com.janedoe.mywalkingapp.Activities;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -11,8 +11,9 @@ import android.widget.EditText;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.google.gson.Gson;
-import com.janedoe.mywalkingapp.Handler.WebRequest;
+import com.janedoe.mywalkingapp.Handlers.WebRequestHandler;
 import com.janedoe.mywalkingapp.Models.UserModel;
+import com.janedoe.mywalkingapp.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +22,7 @@ import org.json.JSONObject;
  * Created by janedoe on 1/26/2016.
  */
 public class RegistrationActivity extends AppCompatActivity {
-    WebRequest req;
+    WebRequestHandler req;
 
     Button signupBtn;
     EditText usernameInput;
@@ -44,7 +45,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
         signupBtn.setOnClickListener(signupBtnOnClickListener());
 
-        req = WebRequest.getInstance();
+        req = WebRequestHandler.getInstance();
     }
 
     private View.OnClickListener signupBtnOnClickListener() {

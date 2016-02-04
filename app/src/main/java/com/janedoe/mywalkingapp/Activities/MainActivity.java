@@ -1,4 +1,4 @@
-package com.janedoe.mywalkingapp;
+package com.janedoe.mywalkingapp.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,21 +6,21 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.android.volley.Response;
 import com.janedoe.mywalkingapp.Adapters.PagerAdapter;
 import com.janedoe.mywalkingapp.Controllers.UserController;
-import com.janedoe.mywalkingapp.Handler.WebRequest;
+import com.janedoe.mywalkingapp.Handlers.WebRequestHandler;
+import com.janedoe.mywalkingapp.R;
+import com.janedoe.mywalkingapp.Widgets.RecordingWidget;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
-    WebRequest webRequest;
+    WebRequestHandler req;
     private UserController userController;
 
     @Override
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-        webRequest = new WebRequest(this);
+        req = WebRequestHandler.getInstance();
         userController = UserController.getInstance(this);
     }
 
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         //if server does not have a session for this device, force them to login
         final MainActivity _this = this;
-        new WebRequest(this).isLoggedIn(new Response.Listener<JSONObject>() {
+        req.isLoggedIn(new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Intent intent = new Intent(_this, LoginActivity.class);

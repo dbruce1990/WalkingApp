@@ -1,4 +1,4 @@
-package com.janedoe.mywalkingapp.Handler;
+package com.janedoe.mywalkingapp.Handlers;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

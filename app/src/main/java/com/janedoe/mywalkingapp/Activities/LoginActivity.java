@@ -1,9 +1,8 @@
-package com.janedoe.mywalkingapp;
+package com.janedoe.mywalkingapp.Activities;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,8 +14,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.google.gson.Gson;
 import com.janedoe.mywalkingapp.Controllers.UserController;
-import com.janedoe.mywalkingapp.Handler.WebRequest;
+import com.janedoe.mywalkingapp.Handlers.WebRequestHandler;
 import com.janedoe.mywalkingapp.Models.UserModel;
+import com.janedoe.mywalkingapp.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +26,7 @@ import org.json.JSONObject;
  */
 public class LoginActivity extends AppCompatActivity {
     UserController userController;
-    WebRequest req;
+    WebRequestHandler req;
 
     Button registerBtn;
     Button loginBtn;
@@ -50,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(loginBtnOnClickListener());
 
         userController = UserController.getInstance(this);
-        req = WebRequest.getInstance();
+        req = WebRequestHandler.getInstance();
     }
 
 
