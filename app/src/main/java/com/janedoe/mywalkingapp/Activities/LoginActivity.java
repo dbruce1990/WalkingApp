@@ -3,6 +3,7 @@ package com.janedoe.mywalkingapp.Activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,7 +26,6 @@ import org.json.JSONObject;
  * Created by janedoe on 1/26/2016.
  */
 public class LoginActivity extends AppCompatActivity {
-    UserController userController;
     WebRequestHandler req;
 
     Button registerBtn;
@@ -36,24 +36,28 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Assign view layout
         setContentView(R.layout.activity_login);
 
+        //Add toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Reference UI elements
         registerBtn = (Button) findViewById(R.id.login_registration_btn);
         loginBtn = (Button) findViewById(R.id.login_login_btn);
         usernameInput = (EditText) findViewById(R.id.login_username_input);
         passwordInput = (EditText) findViewById(R.id.login_password_input);
 
+        //Instantiate OnClickListeners for Buttons
         registerBtn.setOnClickListener(registerBtnOnClickListener());
         loginBtn.setOnClickListener(loginBtnOnClickListener());
 
-        userController = UserController.getInstance(this);
+        //Instantiate dependencies
         req = WebRequestHandler.getInstance();
     }
 
-
+    @NonNull
     private View.OnClickListener loginBtnOnClickListener() {
         final Activity activity = this;
 
@@ -67,56 +71,62 @@ public class LoginActivity extends AppCompatActivity {
                 UserModel user = new UserModel();
                 user.setUsername(username);
                 user.setPassword(password);
-                //attempt to post to server
-                req.POST("/login", user,
-                        //handle response
-                        new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            boolean success = response.getBoolean("success");
-                            Log.d("response from server", new Gson().toJson(response));
-                            if(success){
-                                activity.finish();
-                            }else{
-                                System.out.println(response);
-                            }
-                            //TODO inform user of incorrect credentials
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                        //Handle Errors
-                        new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        String message = "Message: ";
-                        if(error.getMessage() != null){
-                            message += error.getMessage();
-                        }
-                        else
-                            message += "no message available.";
-
-                        message += "\n";
-
-                        if(error.networkResponse != null){
-                            message += "Network Response: ";
-                            message += error.networkResponse.toString();
-                        }
-
-                        if(error.networkResponse.statusCode == 401){
-                            message += "\n Got here!";
-
-                        }
-                        Log.e("MainActivity", message);
-                    }
-                });
-
+                //Post credentials to server
+                req.POST("/login", user, responseListener(activity), errorListener());
             }
         };
     }
 
+    @NonNull
+    private Response.ErrorListener errorListener() {
+        return new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                String message = "Message: ";
+                if(error.getMessage() != null){
+                    message += error.getMessage();
+                }
+                else
+                    message += "no message available.";
+
+                message += "\n";
+
+                if(error.networkResponse != null){
+                    message += "Network Response: ";
+                    message += error.networkResponse.toString();
+                }
+
+                if(error.networkResponse.statusCode == 401){
+                    message += "\n Got here!";
+
+                }
+                Log.e("MainActivity", message);
+            }
+        };
+    }
+
+    @NonNull
+    private Response.Listener<JSONObject> responseListener(final Activity activity) {
+        return new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    boolean success = response.getBoolean("success");
+                    Log.d("/login RESPONSE", response.toString(2));
+                    if(success){
+                        activity.finish();
+                    }else{
+                        System.out.println(response.toString(2));
+                    }
+                    //TODO inform user of incorrect credentials
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
+    @NonNull
     private View.OnClickListener registerBtnOnClickListener() {
         return new View.OnClickListener() {
             @Override

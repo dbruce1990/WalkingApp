@@ -39,17 +39,24 @@ public class PreviousWalksFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        //Assign view layout and get reference
         root = inflater.inflate(R.layout.fragment_previous_walks, container, false);
-        new getWalks().execute();
+
+        //Get all walks
+        getAllWalks();
         Toast.makeText(root.getContext(), "Swipe to refresh", Toast.LENGTH_SHORT).show();
         swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new getWalks().execute();
+                getAllWalks();
             }
         });
         return root;
+    }
+
+    private void getAllWalks() {
+//        new getWalks().execute();
     }
 
     private class getWalks extends AsyncTask<ArrayList<Walk>, Void, ArrayList<Walk>> {

@@ -1,57 +1,73 @@
 package com.janedoe.mywalkingapp.Activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.janedoe.mywalkingapp.Adapters.PagerAdapter;
-import com.janedoe.mywalkingapp.Controllers.UserController;
 import com.janedoe.mywalkingapp.Handlers.WebRequestHandler;
 import com.janedoe.mywalkingapp.R;
 import com.janedoe.mywalkingapp.Widgets.RecordingWidget;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
     WebRequestHandler req;
-    private UserController userController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Assign view layout
         setContentView(R.layout.activity_main);
 
+        //Add toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        //Instantiate dependencies
         req = WebRequestHandler.getInstance();
-        userController = UserController.getInstance(this);
+
+        initTabLayout();
+        RecordingWidget.initialize(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        login();
+    }
 
-        //if server does not have a session for this device, force them to login
-        final MainActivity _this = this;
+    private void login() {
+        //Get reference to this Activity
+        final Activity activity = this;
+        //Ping server to see if logged in
         req.isLoggedIn(new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Intent intent = new Intent(_this, LoginActivity.class);
-                startActivity(intent);
+                //if not logged in, direct user to LoginActivity
+                try {
+                    System.out.println("Login response: " + response.toString(2));
+                    boolean success = response.getBoolean("success");
+                    if (!success) {
+                        Intent intent = new Intent(activity, LoginActivity.class);
+                        startActivity(intent);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
-
-        initTabLayout();
-        RecordingWidget.initialize(this);
     }
 
     @Override
@@ -68,12 +84,72 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if(item.getTitle().equals("Logout")){
+            logout();
             return true;
         }
 
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    private void logout() {
+        //attempt to log user out
+        req.GET("/logout", logoutResponseListener(), logoutErrorListener());
+    }
+
+    private Response.ErrorListener logoutErrorListener() {
+        return new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                String message = "Message: ";
+                if(error.getMessage() != null){
+                    message += error.getMessage().toString();
+                }
+                else
+                    message += "no message available.";
+
+                message += "\n";
+
+                if(error.networkResponse != null){
+                    message += "Network Response: ";
+                    message += error.networkResponse.toString();
+
+                    if(error.networkResponse.statusCode == 401){
+                        message += "\n Got here!";
+
+                    }
+                }
+                Log.e("MainActivity", message);
+            }
+        };
+    }
+
+    private Response.Listener<JSONObject> logoutResponseListener() {
+        return new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                System.out.println(response.toString());
+
+                try {
+                    boolean success = response.getBoolean("success");
+
+                    if(success) {
+                        //redirect user back to login activity
+                        login();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        };
     }
 
     private void initTabLayout() {
