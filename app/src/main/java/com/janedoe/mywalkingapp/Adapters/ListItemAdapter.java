@@ -7,20 +7,19 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.janedoe.mywalkingapp.Models.Walk;
+import com.janedoe.mywalkingapp.Models.WalkModel;
 import com.janedoe.mywalkingapp.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by janedoe on 12/10/2015.
  */
-public class ListItemAdapter extends ArrayAdapter<Walk> {
+public class ListItemAdapter extends ArrayAdapter<WalkModel> {
 
-    public ListItemAdapter(Context context, int resource, ArrayList<Walk> walks) {
+    public ListItemAdapter(Context context, int resource, ArrayList<WalkModel> walks) {
         super(context, resource, walks);
     }
 
@@ -29,7 +28,7 @@ public class ListItemAdapter extends ArrayAdapter<Walk> {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View listItem = inflater.inflate(R.layout.fragment_previous_walk_item, parent, false);
 
-        Walk walk = getItem(position);
+        WalkModel walk = getItem(position);
 
         TextView date = (TextView) listItem.findViewById(R.id.date);
         TextView elapsedTime = (TextView) listItem.findViewById(R.id.elapsed_time);

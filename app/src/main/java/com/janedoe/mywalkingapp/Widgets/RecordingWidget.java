@@ -34,9 +34,11 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.janedoe.mywalkingapp.Handlers.WebRequestHandler;
-import com.janedoe.mywalkingapp.Models.Walk;
-import com.janedoe.mywalkingapp.Models.Waypoint;
+import com.janedoe.mywalkingapp.Models.WalkModel;
+import com.janedoe.mywalkingapp.Models.WaypointModel;
+import com.janedoe.mywalkingapp.Modules.Stopwatch;
 import com.janedoe.mywalkingapp.R;
+import com.janedoe.mywalkingapp.Singletons.WalkModelSingleton;
 
 import org.json.JSONObject;
 
@@ -52,6 +54,8 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class RecordingWidget {
+    WalkModelSingleton model;
+
     private WebRequestHandler req;
 
     private final TextView distanceTextView;
@@ -61,14 +65,14 @@ public class RecordingWidget {
     private Button stopBtn;
     private MapView mapView;
     private GoogleMap map;
-    private StopwatchWidget stopwatch;
+    private Stopwatch stopwatch;
     private Activity activity;
     private TextView timeTextView;
     private LocationRequest locationRequest;
     private LocationManager locationManager;
     private PolylineOptions polylineOptions;
     private Location lastLocation;
-    private Waypoint waypoint;
+    private WaypointModel waypoint;
     private float totalDistance = 0;
 
     private static RecordingWidget recordingWidget;
@@ -78,7 +82,7 @@ public class RecordingWidget {
 
     private Gson gson;
     //    private Polyline polyline;
-    private ArrayList<Waypoint> waypoints = new ArrayList<>();
+    private ArrayList<WaypointModel> waypoints = new ArrayList<>();
 
     private void initButtons() {
         recordBtn = (Button) activity.findViewById(R.id.recordBtn);
@@ -93,58 +97,6 @@ public class RecordingWidget {
         saveWalk();
     }
 
-    private class postData extends AsyncTask<String, Void, Void> {
-
-        @Override
-        protected Void doInBackground(String... params) {
-            //check network connection
-            ConnectivityManager connectivityManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-            if (networkInfo != null && networkInfo.isConnected()) {
-                //connection available
-                URL url;
-                HttpURLConnection urlConnection = null;
-                try {
-                    url = new URL("http://walkingapp.herokuapp.com/walks");
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setChunkedStreamingMode(0);
-                    urlConnection.setRequestMethod("POST");
-                    urlConnection.setDoOutput(true);
-                    urlConnection.setRequestProperty("Content-Type", "application/json");
-
-                    urlConnection.connect();
-
-                    DataOutputStream outputStream = new DataOutputStream(urlConnection.getOutputStream());
-                    outputStream.writeBytes(params[0]);
-
-                    String res = "";
-                    InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
-                    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-                    String line = "";
-                    while ((line = br.readLine()) != null) {
-//                    res += in.read();
-                        Log.d("response", String.valueOf(line));
-                    }
-                    outputStream.flush();
-                    outputStream.close();
-                    inputStream.close();
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (urlConnection != null)
-                        urlConnection.disconnect();
-                }
-
-            } else {
-                //display error
-            }
-
-            return null;
-        }
-    }
-
     private void saveWalk() {
         final Dialog dialog = new Dialog(activity);
         dialog.setContentView(R.layout.description_dialog);
@@ -153,7 +105,7 @@ public class RecordingWidget {
         saveDescriptionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Walk walk = new Walk();
+                WalkModel walk = new WalkModel();
 
                 walk.setElapsedTime(stopwatch.getElapsedTime());
                 walk.setWaypoints(waypoints);
@@ -162,11 +114,6 @@ public class RecordingWidget {
                 EditText descriptionTextView = (EditText) dialog.findViewById(R.id.descriptionTextView);
                 walk.setDescription(descriptionTextView.getText().toString());
 
-//                String result = gson.toJson(walk);
-//                Log.d("Walk", result);
-//                Log.d("totalDistance", String.valueOf(totalDistance));
-
-//                new postData().execute(result);
                 req.POST("/walks", walk, walkResponseListener(), walkResponseErrorListener());
 
                 dialog.dismiss();
@@ -290,7 +237,7 @@ public class RecordingWidget {
                     if (lastLocation != null) {
                         float distanceBetween = lastLocation.distanceTo(location);
 //                        if (location.getAccuracy() > 1) {
-                        waypoint = new Waypoint(location);
+                        waypoint = new WaypointModel(location);
                         waypoints.add(waypoint);
 
                         Log.d("location", gson.toJson(location));
@@ -387,7 +334,7 @@ public class RecordingWidget {
     private RecordingWidget(Activity activity) {
         this.activity = activity;
         handler = new Handler();
-        stopwatch = new StopwatchWidget();
+        stopwatch = Stopwatch.getInstance();
         initButtons();
 
         if (googleApiClient == null) {

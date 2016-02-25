@@ -1,20 +1,18 @@
 package com.janedoe.mywalkingapp.Models;
 
-import android.os.SystemClock;
-
 import java.util.ArrayList;
 
 /**
  * Created by janedoe on 12/10/2015.
  */
-public class Walk {
+public class WalkModel {
     private String description;
     private long createdAt;
     private long elapsedTime;
     private float distance;
-    private ArrayList<Waypoint> waypoints;
+    private ArrayList<WaypointModel> waypoints;
 
-    public void addWaypoint(Waypoint waypoint){
+    public void addWaypoint(WaypointModel waypoint){
             if(waypoint != null)
                 waypoints.add(waypoint);
     }
@@ -31,7 +29,7 @@ public class Walk {
         this.distance = distance;
     }
 
-    public void setWaypoints(ArrayList<Waypoint> waypoints) {
+    public void setWaypoints(ArrayList<WaypointModel> waypoints) {
         this.waypoints = waypoints;
     }
 
@@ -39,7 +37,7 @@ public class Walk {
         return distance;
     }
 
-    public ArrayList<Waypoint> getWaypoints() {
+    public ArrayList<WaypointModel> getWaypoints() {
         return waypoints;
 }
 
@@ -55,7 +53,7 @@ public class Walk {
         return elapsedTime;
     }
 
-    public Walk() {
+    public WalkModel() {
         createdAt = System.currentTimeMillis();
         description = "";
         elapsedTime = 0;

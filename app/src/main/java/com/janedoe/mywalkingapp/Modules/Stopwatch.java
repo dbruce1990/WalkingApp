@@ -1,4 +1,4 @@
-package com.janedoe.mywalkingapp.Widgets;
+package com.janedoe.mywalkingapp.Modules;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -8,7 +8,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by janedoe on 12/8/2015.
  */
-public class StopwatchWidget {
+public class Stopwatch {
+    private static Stopwatch stopwatch;
     private Handler handler;
 
     private boolean recording;
@@ -23,8 +24,14 @@ public class StopwatchWidget {
     private long min;
     private long hr;
 
-    public StopwatchWidget() {
+    private Stopwatch() {
         handler = new Handler();
+    }
+
+    public static Stopwatch getInstance(){
+        if(stopwatch == null)
+            stopwatch = new Stopwatch();
+        return stopwatch;
     }
 
     public void start() {

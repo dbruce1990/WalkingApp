@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.LatLng;
 /**
  * Created by janedoe on 12/17/2015.
  */
-public class Waypoint {
+public class WaypointModel {
     double createdAt;
     float accuracy;
     private LatLng latlng;
@@ -33,7 +33,7 @@ public class Waypoint {
         return latlng;
     }
 
-    public Waypoint(Location location){
+    public WaypointModel(Location location){
         createdAt = SystemClock.uptimeMillis();
         accuracy = location.getAccuracy();
         latlng = new LatLng(location.getLatitude(), location.getLongitude());

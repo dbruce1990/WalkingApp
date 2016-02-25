@@ -113,7 +113,9 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     boolean success = response.getBoolean("success");
                     Log.d("/login RESPONSE", response.toString(2));
+
                     if(success){
+                        Log.d("GOT", "HERE!");
                         activity.finish();
                     }else{
                         System.out.println(response.toString(2));
