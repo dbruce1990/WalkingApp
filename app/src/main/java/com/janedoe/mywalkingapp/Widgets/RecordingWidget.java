@@ -151,7 +151,7 @@ public class RecordingWidget {
         return new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                System.out.println(new Gson().toJson(error));
+                System.out.println(error.toString());
             }
         };
     }
@@ -225,8 +225,10 @@ public class RecordingWidget {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        googleApiClient.disconnect();
-        locationManager.removeUpdates(locationListener);
+        if(googleApiClient != null)
+            googleApiClient.disconnect();
+        if(locationManager != null && locationListener != null)
+            locationManager.removeUpdates(locationListener);
     }
 
     private void initLocationListener() {

@@ -11,14 +11,15 @@ import com.google.android.gms.maps.model.LatLng;
 public class WaypointModel {
     double createdAt;
     float accuracy;
-    private LatLng latlng;
+    double longitude;
+    double latitude;
 
     public double getLatitude() {
-        return latlng.latitude;
+        return latitude;
     }
 
     public double getLongitude() {
-        return latlng.longitude;
+        return longitude;
     }
 
     public double getCreatedAt() {
@@ -30,12 +31,13 @@ public class WaypointModel {
     }
 
     public LatLng getLatLng() {
-        return latlng;
+        return new LatLng(getLatitude(), getLongitude());
     }
 
     public WaypointModel(Location location){
         createdAt = SystemClock.uptimeMillis();
         accuracy = location.getAccuracy();
-        latlng = new LatLng(location.getLatitude(), location.getLongitude());
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
     }
 }

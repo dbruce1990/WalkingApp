@@ -24,7 +24,8 @@ public class WebRequestHandler {
     private String requestTag = "Activity";
 
     private Gson gson = new Gson();
-    private String baseURL = "http://walkingapp.herokuapp.com";
+//    private String baseURL = "http://walkingapp.herokuapp.com";
+    private String baseURL = "http://192.168.2.2:3000";
 
     public static WebRequestHandler getInstance(){
         if(webRequest == null)
@@ -39,6 +40,12 @@ public class WebRequestHandler {
     public void POST(String path, Object obj, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener){
         String url = baseURL + path;
         JSONObject data = toJSONObject(obj);
+
+        try {
+            System.out.println("POST data:\n" + data.toString(2));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST,
                 url, data, responseListener, errorListener);
